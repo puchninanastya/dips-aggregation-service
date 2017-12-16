@@ -1,0 +1,6 @@
+dips_aggregation_service/__pycache__/
+aggregation_service/__pycache__/
+aggregation_service/migrations/__pycache__/
+aggregation_service/tests/__pycache__/
+htmlcov/
+.coverage
