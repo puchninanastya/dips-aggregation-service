@@ -134,25 +134,30 @@ class CourseDetail(APIView):
 class OrderList(APIView):
     urlOrderService = 'http://127.0.0.1:8003/orders/'
     urlUserService = 'http://127.0.0.1:8001/users/'
+    urlCourseService = 'http://127.0.0.1:8002/courses/'
 
     def get(self, request):
         try:
             serviceResponse = requests.get(self.urlOrderService, params = request.query_params)
             if serviceResponse.status_code == requests.codes.ok:
                 responseData = fixResponsePaginationUrls(request, serviceResponse)
-                # TODO: do try except for user service request
-                print('we are here')
-                for userData in responseData['results']:
-                    userId = userData['user']
+                # TODO: do try except for user and course services requests
+                for orderData in responseData['results']:
+                    # make request to user service
+                    userId = orderData['user']
                     if userId is not None:
-                        print(userId)
                         userServiceResponse = requests.get(self.urlUserService+str(userId)+'/')
-                        print(userServiceResponse)
                         if userServiceResponse.status_code == requests.codes.ok:
-                            userData['user'] = userServiceResponse.json()
-                print('we are here2')
+                            orderData['user'] = userServiceResponse.json()
+                    # make request to course service
+                    courses = orderData['courses']
+                    coursesResult = []
+                    for courseId in orderData['courses']:
+                        courseServiceResponse = requests.get(self.urlCourseService+str(courseId)+'/')
+                        if courseServiceResponse.status_code == requests.codes.ok:
+                            coursesResult.append(courseServiceResponse.json())
+                    orderData['courses'] = coursesResult
                 return Response(responseData)
-
             return Response(responseData, status=status.HTTP_404_NOT_FOUND)
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
