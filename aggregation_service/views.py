@@ -15,24 +15,22 @@ def fixResponsePaginationUrls(request, response):
             parsed = urlparse(r['next'])
             nextUrl = parsed._replace(netloc=str(request.META['SERVER_NAME'])+':'+str(request.META['SERVER_PORT']))
             r['next'] = urlunparse(nextUrl)
-            print(nextUrl)
         if r['previous'] is not None:
             parsed = urlparse(r['previous'])
             prevUrl = parsed._replace(netloc=str(request.META['SERVER_NAME'])+':'+str(request.META['SERVER_PORT']))
             r['previous'] = urlunparse(prevUrl)
-            print(prevUrl)
         return r
     except:
         return response.json()
 
 
 class UserList(APIView):
-    url = 'http://127.0.0.1:8001/users/'
+    urlUserService = 'http://127.0.0.1:8001/users/'
 
     def get(self, request):
         try:
             # make a request
-            serviceResponse = requests.get(self.url, params = request.query_params)
+            serviceResponse = requests.get(self.urlUserService, params = request.query_params)
             if serviceResponse.status_code == requests.codes.ok:
                 responseData = fixResponsePaginationUrls(request, serviceResponse)
                 return Response(responseData)
@@ -42,7 +40,7 @@ class UserList(APIView):
 
     def post(self, request):
         try:
-            r = requests.post(self.url, data = request.data)
+            r = requests.post(self.urlUserService, data = request.data)
             if r.status_code == requests.codes.created:
                 return Response(r.json(), status=status.HTTP_201_CREATED)
             return Response(r.json(), status=status.HTTP_400_BAD_REQUEST)
@@ -50,11 +48,11 @@ class UserList(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 class UserDetail(APIView):
-    url = 'http://127.0.0.1:8001/users/'
+    urlUserService = 'http://127.0.0.1:8001/users/'
 
     def get(self, request, id):
         try:
-            r = requests.get(self.url+id+'/')
+            r = requests.get(self.urlUserService+id+'/')
             if r.status_code == requests.codes.ok:
                 return Response(r.json())
             return Response(r.json(), status=status.HTTP_404_NOT_FOUND)
@@ -63,7 +61,7 @@ class UserDetail(APIView):
 
     def put(self, request, id):
         try:
-            r = requests.put(self.url+id+'/', data = request.data)
+            r = requests.put(self.urlUserService+id+'/', data = request.data)
             if r.status_code == requests.codes.ok:
                 return Response(r.json())
             return Response(r.json(), status=status.HTTP_400_BAD_REQUEST)
@@ -72,7 +70,7 @@ class UserDetail(APIView):
 
     def delete(self, request, id):
         try:
-            r = requests.delete(self.url+id+'/')
+            r = requests.delete(self.urlUserService+id+'/')
             if r.status_code == 204:
                 return Response(status=status.HTTP_204_NO_CONTENT)
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -81,11 +79,11 @@ class UserDetail(APIView):
 
 
 class CourseList(APIView):
-    url = 'http://127.0.0.1:8002/courses/'
+    urlCourseService = 'http://127.0.0.1:8002/courses/'
 
     def get(self, request):
         try:
-            serviceResponse = requests.get(self.url, params = request.query_params)
+            serviceResponse = requests.get(self.urlCourseService, params = request.query_params)
             if serviceResponse.status_code == requests.codes.ok:
                 responseData = fixResponsePaginationUrls(request, serviceResponse)
                 return Response(responseData)
@@ -95,7 +93,7 @@ class CourseList(APIView):
 
     def post(self, request):
         try:
-            r = requests.post(self.url, data = request.data)
+            r = requests.post(self.urlCourseService, data = request.data)
             if r.status_code == requests.codes.created:
                 return Response(r.json(), status=status.HTTP_201_CREATED)
             return Response(r.json(), status=status.HTTP_400_BAD_REQUEST)
@@ -103,11 +101,11 @@ class CourseList(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 class CourseDetail(APIView):
-    url = 'http://127.0.0.1:8002/courses/'
+    urlCourseService = 'http://127.0.0.1:8002/courses/'
 
     def get(self, request, id):
         try:
-            r = requests.get(self.url+id+'/')
+            r = requests.get(self.urlCourseService+id+'/')
             if r.status_code == requests.codes.ok:
                 return Response(r.json())
             return Response(r.json(), status=status.HTTP_404_NOT_FOUND)
@@ -116,7 +114,7 @@ class CourseDetail(APIView):
 
     def put(self, request, id):
         try:
-            r = requests.put(self.url+id+'/', data = request.data)
+            r = requests.put(self.urlCourseService+id+'/', data = request.data)
             if r.status_code == requests.codes.ok:
                 return Response(r.json())
             return Response(r.json(), status=status.HTTP_400_BAD_REQUEST)
@@ -125,7 +123,7 @@ class CourseDetail(APIView):
 
     def delete(self, request, id):
         try:
-            r = requests.delete(self.url+id+'/')
+            r = requests.delete(self.urlCourseService+id+'/')
             if r.status_code == 204:
                 return Response(status=status.HTTP_204_NO_CONTENT)
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -134,21 +132,34 @@ class CourseDetail(APIView):
 
 
 class OrderList(APIView):
-    url = 'http://127.0.0.1:8003/orders/'
+    urlOrderService = 'http://127.0.0.1:8003/orders/'
+    urlUserService = 'http://127.0.0.1:8001/users/'
 
     def get(self, request):
         try:
-            serviceResponse = requests.get(self.url, params = request.query_params)
+            serviceResponse = requests.get(self.urlOrderService, params = request.query_params)
             if serviceResponse.status_code == requests.codes.ok:
                 responseData = fixResponsePaginationUrls(request, serviceResponse)
+                # TODO: do try except for user service request
+                print('we are here')
+                for userData in responseData['results']:
+                    userId = userData['user']
+                    if userId is not None:
+                        print(userId)
+                        userServiceResponse = requests.get(self.urlUserService+str(userId)+'/')
+                        print(userServiceResponse)
+                        if userServiceResponse.status_code == requests.codes.ok:
+                            userData['user'] = userServiceResponse.json()
+                print('we are here2')
                 return Response(responseData)
+
             return Response(responseData, status=status.HTTP_404_NOT_FOUND)
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
     def post(self, request):
         try:
-            r = requests.post(self.url, data = request.data)
+            r = requests.post(self.urlOrderService, data = request.data)
             if r.status_code == requests.codes.created:
                 return Response(r.json(), status=status.HTTP_201_CREATED)
             return Response(r.json(), status=status.HTTP_400_BAD_REQUEST)
@@ -156,11 +167,11 @@ class OrderList(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 class OrderDetail(APIView):
-    url = 'http://127.0.0.1:8003/orders/'
+    urlOrderService = 'http://127.0.0.1:8003/orders/'
 
     def get(self, request, id):
         try:
-            r = requests.get(self.url+id+'/')
+            r = requests.get(self.urlOrderService+id+'/')
             if r.status_code == requests.codes.ok:
                 return Response(r.json())
             return Response(r.json(), status=status.HTTP_404_NOT_FOUND)
@@ -169,7 +180,7 @@ class OrderDetail(APIView):
 
     def put(self, request, id):
         try:
-            r = requests.put(self.url+id+'/', data = request.data)
+            r = requests.put(self.urlOrderService+id+'/', data = request.data)
             if r.status_code == requests.codes.ok:
                 return Response(r.json())
             return Response(r.json(), status=status.HTTP_400_BAD_REQUEST)
@@ -178,7 +189,7 @@ class OrderDetail(APIView):
 
     def delete(self, request, id):
         try:
-            r = requests.delete(self.url+id+'/')
+            r = requests.delete(self.urlOrderService+id+'/')
             if r.status_code == 204:
                 return Response(status=status.HTTP_204_NO_CONTENT)
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -187,11 +198,11 @@ class OrderDetail(APIView):
 
 
 class PaymentList(APIView):
-    url = 'http://127.0.0.1:8004/payments/'
+    urlBillingService = 'http://127.0.0.1:8004/payments/'
 
     def get(self, request):
         try:
-            serviceResponse = requests.get(self.url, params = request.query_params)
+            serviceResponse = requests.get(self.urlBillingService, params = request.query_params)
             if serviceResponse.status_code == requests.codes.ok:
                 responseData = fixResponsePaginationUrls(request, serviceResponse)
                 return Response(responseData)
@@ -201,7 +212,7 @@ class PaymentList(APIView):
 
     def post(self, request):
         try:
-            r = requests.post(self.url, data = request.data)
+            r = requests.post(self.urlBillingService, data = request.data)
             if r.status_code == requests.codes.created:
                 return Response(r.json(), status=status.HTTP_201_CREATED)
             return Response(r.json(), status=status.HTTP_400_BAD_REQUEST)
@@ -209,11 +220,11 @@ class PaymentList(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 class PaymentDetail(APIView):
-    url = 'http://127.0.0.1:8004/payments/'
+    urlBillingService = 'http://127.0.0.1:8004/payments/'
 
     def get(self, request, id):
         try:
-            r = requests.get(self.url+id+'/')
+            r = requests.get(self.urlBillingService+id+'/')
             if r.status_code == requests.codes.ok:
                 return Response(r.json())
             return Response(r.json(), status=status.HTTP_404_NOT_FOUND)
@@ -222,7 +233,7 @@ class PaymentDetail(APIView):
 
     def put(self, request, id):
         try:
-            r = requests.put(self.url+id+'/', data = request.data)
+            r = requests.put(self.urlBillingService+id+'/', data = request.data)
             if r.status_code == requests.codes.ok:
                 return Response(r.json())
             return Response(r.json(), status=status.HTTP_400_BAD_REQUEST)
@@ -231,7 +242,7 @@ class PaymentDetail(APIView):
 
     def delete(self, request, id):
         try:
-            r = requests.delete(self.url+id+'/')
+            r = requests.delete(self.urlBillingService+id+'/')
             if r.status_code == 204:
                 return Response(status=status.HTTP_204_NO_CONTENT)
             return Response(status=status.HTTP_404_NOT_FOUND)
