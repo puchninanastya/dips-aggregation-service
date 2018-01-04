@@ -9,10 +9,10 @@ from rest_framework import status
 import requests, sys
 
 """ Services urls """
-urlUserService = 'http://127.0.0.1:8001/users/'
-urlCourseService = 'http://127.0.0.1:8002/courses/'
-urlOrderService = 'http://127.0.0.1:8003/orders/'
-urlBillingService = 'http://127.0.0.1:8004/payments/'
+urlUserService = 'http://127.0.0.1:8001/'
+urlCourseService = 'http://127.0.0.1:8002/'
+urlOrderService = 'http://127.0.0.1:8003/'
+urlBillingService = 'http://127.0.0.1:8004/'
 
 def fixResponsePaginationUrls(request, response):
     r = response.json()
@@ -32,7 +32,7 @@ def fixResponsePaginationUrls(request, response):
 def getObjectFromService(url, id):
     try:
         if id is not None:
-            response = requests.get(url+str(id)+'/')
+            response = requests.get(url+id+'/')
             if response.status_code == requests.codes.ok:
                 return response.json()
     except:
@@ -42,9 +42,9 @@ class UserList(APIView):
     def get(self, request):
         try:
             # make a request
-            serviceResponse = requests.get(urlUserService, params = request.query_params)
-            if serviceResponse.status_code == requests.codes.ok:
-                responseData = fixResponsePaginationUrls(request, serviceResponse)
+            userServiceResponse = requests.get(urlUserService+'users', params = request.query_params)
+            if userServiceResponse.status_code == requests.codes.ok:
+                responseData = fixResponsePaginationUrls(request, userServiceResponse)
                 return Response(responseData)
             return Response(responseData, status=status.HTTP_404_NOT_FOUND)
         except:
@@ -52,37 +52,42 @@ class UserList(APIView):
 
     def post(self, request):
         try:
-            r = requests.post(urlUserService, data = request.data)
-            if r.status_code == requests.codes.created:
-                return Response(r.json(), status=status.HTTP_201_CREATED)
-            return Response(r.json(), status=status.HTTP_400_BAD_REQUEST)
+            userServiceResponse = requests.post(urlUserService+'users', data = request.data)
+            if userServiceResponse.status_code == requests.codes.created:
+                return Response(userServiceResponse.json(), status=status.HTTP_201_CREATED)
+            return Response(userServiceResponse.json(), status=status.HTTP_400_BAD_REQUEST)
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 class UserDetail(APIView):
     def get(self, request, id):
         try:
-            r = requests.get(urlUserService+id+'/')
-            if r.status_code == requests.codes.ok:
-                return Response(r.json())
-            return Response(r.json(), status=status.HTTP_404_NOT_FOUND)
+            userServiceResponse = requests.get(urlUserService+'users/'+id+'/')
+            if userServiceResponse.status_code == requests.codes.ok:
+                return Response(userServiceResponse.json())
+            return Response(userServiceResponse.json(), status=status.HTTP_404_NOT_FOUND)
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, id):
         try:
-            r = requests.put(urlUserService+id+'/', data = request.data)
-            if r.status_code == requests.codes.ok:
-                return Response(r.json())
-            return Response(r.json(), status=status.HTTP_400_BAD_REQUEST)
+            userServiceResponse = requests.put(urlUserService+'users/'+id+'/', data = request.data)
+            if userServiceResponse.status_code == requests.codes.ok:
+                return Response(userServiceResponse.json())
+            return Response(userServiceResponse.json(), status=status.HTTP_400_BAD_REQUEST)
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, id):
         try:
-            r = requests.delete(urlUserService+id+'/')
-            if r.status_code == 204:
-                return Response(status=status.HTTP_204_NO_CONTENT)
+            userServiceResponse = requests.delete(urlUserService+'users/'+id+'/')
+            if userServiceResponse.status_code == 204:
+                # delete user orders
+                orderServiceResponse = requests.delete(urlOrderService+'users/'+id+'/orders')
+                if orderServiceResponse.status_code == 204 or orderServiceResponse.status_code == 404:
+                    return Response(status=status.HTTP_204_NO_CONTENT)
+                #else:
+                    # TODO: ROLLBACK OR QUEUE REQUEST
             return Response(status=status.HTTP_404_NOT_FOUND)
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -91,9 +96,9 @@ class UserDetail(APIView):
 class CourseList(APIView):
     def get(self, request):
         try:
-            serviceResponse = requests.get(urlCourseService, params = request.query_params)
-            if serviceResponse.status_code == requests.codes.ok:
-                responseData = fixResponsePaginationUrls(request, serviceResponse)
+            courseServiceResponse = requests.get(urlCourseService+'courses', params = request.query_params)
+            if courseServiceResponse.status_code == requests.codes.ok:
+                responseData = fixResponsePaginationUrls(request, courseServiceResponse)
                 return Response(responseData)
             return Response(responseData, status=status.HTTP_404_NOT_FOUND)
         except:
@@ -101,36 +106,36 @@ class CourseList(APIView):
 
     def post(self, request):
         try:
-            r = requests.post(urlCourseService, data = request.data)
-            if r.status_code == requests.codes.created:
-                return Response(r.json(), status=status.HTTP_201_CREATED)
-            return Response(r.json(), status=status.HTTP_400_BAD_REQUEST)
+            courseServiceResponse = requests.post(urlCourseService+'courses', data = request.data)
+            if courseServiceResponse.status_code == requests.codes.created:
+                return Response(courseServiceResponse.json(), status=status.HTTP_201_CREATED)
+            return Response(courseServiceResponse.json(), status=status.HTTP_400_BAD_REQUEST)
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 class CourseDetail(APIView):
     def get(self, request, id):
         try:
-            r = requests.get(urlCourseService+id+'/')
-            if r.status_code == requests.codes.ok:
-                return Response(r.json())
-            return Response(r.json(), status=status.HTTP_404_NOT_FOUND)
+            courseServiceResponse = requests.get(urlCourseService+'courses/'+id+'/')
+            if courseServiceResponse.status_code == requests.codes.ok:
+                return Response(courseServiceResponse.json())
+            return Response(courseServiceResponse.json(), status=status.HTTP_404_NOT_FOUND)
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, id):
         try:
-            r = requests.put(urlCourseService+id+'/', data = request.data)
-            if r.status_code == requests.codes.ok:
-                return Response(r.json())
-            return Response(r.json(), status=status.HTTP_400_BAD_REQUEST)
+            courseServiceResponse = requests.put(urlCourseService+'courses/'+id+'/', data = request.data)
+            if courseServiceResponse.status_code == requests.codes.ok:
+                return Response(courseServiceResponse.json())
+            return Response(courseServiceResponse.json(), status=status.HTTP_400_BAD_REQUEST)
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, id):
         try:
-            r = requests.delete(urlCourseService+id+'/')
-            if r.status_code == 204:
+            courseServiceResponse = requests.delete(urlCourseService+'courses/'+id+'/')
+            if courseServiceResponse.status_code == 204:
                 return Response(status=status.HTTP_204_NO_CONTENT)
             return Response(status=status.HTTP_404_NOT_FOUND)
         except:
@@ -140,9 +145,9 @@ class CourseDetail(APIView):
 class OrderList(APIView):
     def get(self, request):
         try:
-            serviceResponse = requests.get(urlOrderService, params = request.query_params)
-            if serviceResponse.status_code == requests.codes.ok:
-                responseData = fixResponsePaginationUrls(request, serviceResponse)
+            orderServiceResponse = requests.get(urlOrderService+'orders', params = request.query_params)
+            if orderServiceResponse.status_code == requests.codes.ok:
+                responseData = fixResponsePaginationUrls(request, orderServiceResponse)
                 # TODO: do try except for user and course services requests
                 for orderData in responseData['results']:
                     # get user info
@@ -171,36 +176,36 @@ class OrderList(APIView):
 
     def post(self, request):
         try:
-            r = requests.post(urlOrderService, data = request.data)
-            if r.status_code == requests.codes.created:
-                return Response(r.json(), status=status.HTTP_201_CREATED)
-            return Response(r.json(), status=status.HTTP_400_BAD_REQUEST)
+            orderServiceResponse = requests.post(urlOrderService+'orders', data = request.data)
+            if orderServiceResponse.status_code == requests.codes.created:
+                return Response(orderServiceResponse.json(), status=status.HTTP_201_CREATED)
+            return Response(orderServiceResponse.json(), status=status.HTTP_400_BAD_REQUEST)
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 class OrderDetail(APIView):
     def get(self, request, id):
         try:
-            r = requests.get(urlOrderService+id+'/')
-            if r.status_code == requests.codes.ok:
-                return Response(r.json())
-            return Response(r.json(), status=status.HTTP_404_NOT_FOUND)
+            orderServiceResponse = requests.get(urlOrderService+'orders/'+id+'/')
+            if orderServiceResponse.status_code == requests.codes.ok:
+                return Response(orderServiceResponse.json())
+            return Response(orderServiceResponse.json(), status=status.HTTP_404_NOT_FOUND)
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, id):
         try:
-            r = requests.put(urlOrderService+id+'/', data = request.data)
-            if r.status_code == requests.codes.ok:
-                return Response(r.json())
-            return Response(r.json(), status=status.HTTP_400_BAD_REQUEST)
+            orderServiceResponse = requests.put(urlOrderService+'orders/'+id+'/', data = request.data)
+            if orderServiceResponse.status_code == requests.codes.ok:
+                return Response(orderServiceResponse.json())
+            return Response(orderServiceResponse.json(), status=status.HTTP_400_BAD_REQUEST)
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, id):
         try:
-            r = requests.delete(urlOrderService+id+'/')
-            if r.status_code == 204:
+            orderServiceResponse = requests.delete(urlOrderService+'orders/'+id+'/')
+            if orderServiceResponse.status_code == 204:
                 return Response(status=status.HTTP_204_NO_CONTENT)
             return Response(status=status.HTTP_404_NOT_FOUND)
         except:
@@ -210,9 +215,9 @@ class OrderDetail(APIView):
 class PaymentList(APIView):
     def get(self, request):
         try:
-            serviceResponse = requests.get(urlBillingService, params = request.query_params)
-            if serviceResponse.status_code == requests.codes.ok:
-                responseData = fixResponsePaginationUrls(request, serviceResponse)
+            billingServiceResponse = requests.get(urlBillingService+'payments', params = request.query_params)
+            if billingServiceResponse.status_code == requests.codes.ok:
+                responseData = fixResponsePaginationUrls(request, billingServiceResponse)
                 return Response(responseData)
             return Response(responseData, status=status.HTTP_404_NOT_FOUND)
         except:
@@ -220,36 +225,36 @@ class PaymentList(APIView):
 
     def post(self, request):
         try:
-            r = requests.post(urlBillingService, data = request.data)
-            if r.status_code == requests.codes.created:
-                return Response(r.json(), status=status.HTTP_201_CREATED)
-            return Response(r.json(), status=status.HTTP_400_BAD_REQUEST)
+            billingServiceResponse = requests.post(urlBillingService+'payments', data = request.data)
+            if billingServiceResponse.status_code == requests.codes.created:
+                return Response(billingServiceResponse.json(), status=status.HTTP_201_CREATED)
+            return Response(billingServiceResponse.json(), status=status.HTTP_400_BAD_REQUEST)
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 class PaymentDetail(APIView):
     def get(self, request, id):
         try:
-            r = requests.get(urlBillingService+id+'/')
-            if r.status_code == requests.codes.ok:
-                return Response(r.json())
-            return Response(r.json(), status=status.HTTP_404_NOT_FOUND)
+            billingServiceResponse = requests.get(urlBillingService+'payments/'+id+'/')
+            if billingServiceResponse.status_code == requests.codes.ok:
+                return Response(billingServiceResponse.json())
+            return Response(billingServiceResponse.json(), status=status.HTTP_404_NOT_FOUND)
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, id):
         try:
-            r = requests.put(urlBillingService+id+'/', data = request.data)
-            if r.status_code == requests.codes.ok:
-                return Response(r.json())
-            return Response(r.json(), status=status.HTTP_400_BAD_REQUEST)
+            billingServiceResponse = requests.put(urlBillingService+'payments/'+id+'/', data = request.data)
+            if billingServiceResponse.status_code == requests.codes.ok:
+                return Response(billingServiceResponse.json())
+            return Response(billingServiceResponse.json(), status=status.HTTP_400_BAD_REQUEST)
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, id):
         try:
-            r = requests.delete(urlBillingService+id+'/')
-            if r.status_code == 204:
+            billingServiceResponse = requests.delete(urlBillingService+'payments/'+id+'/')
+            if billingServiceResponse.status_code == 204:
                 return Response(status=status.HTTP_204_NO_CONTENT)
             return Response(status=status.HTTP_404_NOT_FOUND)
         except:
