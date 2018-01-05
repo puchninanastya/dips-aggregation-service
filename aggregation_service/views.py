@@ -6,7 +6,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework import status
 
-import requests, sys
+import requests, json
 
 """ Services urls """
 urlUserService = 'http://127.0.0.1:8001/'
@@ -225,9 +225,22 @@ class PaymentList(APIView):
 
     def post(self, request):
         try:
-            billingServiceResponse = requests.post(urlBillingService+'payments', data = request.data)
+            billingServiceResponse = requests.post(urlBillingService+'payments/', data = request.data)
             if billingServiceResponse.status_code == requests.codes.created:
-                return Response(billingServiceResponse.json(), status=status.HTTP_201_CREATED)
+                # change order payment status
+                payment = billingServiceResponse.json()
+                orderId = payment['order_id']
+                amountPaid = payment['amount_paid']
+                if (orderId is not None) and (amountPaid is not None):
+                    requestStatusData = { 'is_paid' : True }
+                    orderServiceResponse = requests.patch(urlOrderService+'orders/'+str(orderId)+'/',
+                        json = requestStatusData, params = {'paid' : amountPaid})
+                    if orderServiceResponse.status_code == requests.codes.ok:
+                        #TODO: check payment status
+                        return Response(billingServiceResponse.json(), status=status.HTTP_201_CREATED)
+                    #else:
+                        # TODO: ROLLBACK OR QUEUE REQUEST
+            #TODO: change Response: delete body
             return Response(billingServiceResponse.json(), status=status.HTTP_400_BAD_REQUEST)
         except:
             return Response(status=status.HTTP_400_BAD_REQUEST)
