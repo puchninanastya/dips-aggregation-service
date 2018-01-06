@@ -1,4 +1,6 @@
 from django.shortcuts import render
+from django.http import JsonResponse
+
 from urllib.parse import urlparse, urlunparse
 
 from rest_framework.views import APIView
@@ -6,7 +8,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework import status
 
-import requests, json
+import requests
 
 """ Services urls """
 urlUserService = 'http://127.0.0.1:8001/'
@@ -38,16 +40,22 @@ def getObjectFromService(url, id):
     except:
         return None
 
+def getUnavailableErrorData():
+    return {'error' : 'Service is unavailable.'}
+
 class UserList(APIView):
     def get(self, request):
         try:
-            # make a request
-            userServiceResponse = requests.get(urlUserService+'users', params = request.query_params)
+            userServiceResponse = requests.get(urlUserService+'users/', params = request.query_params)
+            print(0)
             if userServiceResponse.status_code == requests.codes.ok:
                 responseData = fixResponsePaginationUrls(request, userServiceResponse)
                 return Response(responseData)
             return Response(responseData, status=status.HTTP_404_NOT_FOUND)
-        except:
+        except requests.exceptions.ConnectionError:
+            print(1)
+            return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
     def post(self, request):
@@ -56,7 +64,10 @@ class UserList(APIView):
             if userServiceResponse.status_code == requests.codes.created:
                 return Response(userServiceResponse.json(), status=status.HTTP_201_CREATED)
             return Response(userServiceResponse.json(), status=status.HTTP_400_BAD_REQUEST)
-        except:
+        except requests.exceptions.ConnectionError:
+            print(1)
+            return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 class UserDetail(APIView):
@@ -66,7 +77,10 @@ class UserDetail(APIView):
             if userServiceResponse.status_code == requests.codes.ok:
                 return Response(userServiceResponse.json())
             return Response(userServiceResponse.json(), status=status.HTTP_404_NOT_FOUND)
-        except:
+        except requests.exceptions.ConnectionError:
+            print(1)
+            return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, id):
@@ -75,7 +89,10 @@ class UserDetail(APIView):
             if userServiceResponse.status_code == requests.codes.ok:
                 return Response(userServiceResponse.json())
             return Response(userServiceResponse.json(), status=status.HTTP_400_BAD_REQUEST)
-        except:
+        except requests.exceptions.ConnectionError:
+            print(1)
+            return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, id):
@@ -89,7 +106,10 @@ class UserDetail(APIView):
                 #else:
                     # TODO: ROLLBACK OR QUEUE REQUEST
             return Response(status=status.HTTP_404_NOT_FOUND)
-        except:
+        except requests.exceptions.ConnectionError:
+            print(1)
+            return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -101,7 +121,10 @@ class CourseList(APIView):
                 responseData = fixResponsePaginationUrls(request, courseServiceResponse)
                 return Response(responseData)
             return Response(responseData, status=status.HTTP_404_NOT_FOUND)
-        except:
+        except requests.exceptions.ConnectionError:
+            print(1)
+            return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
     def post(self, request):
@@ -110,7 +133,10 @@ class CourseList(APIView):
             if courseServiceResponse.status_code == requests.codes.created:
                 return Response(courseServiceResponse.json(), status=status.HTTP_201_CREATED)
             return Response(courseServiceResponse.json(), status=status.HTTP_400_BAD_REQUEST)
-        except:
+        except requests.exceptions.ConnectionError:
+            print(1)
+            return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 class CourseDetail(APIView):
@@ -120,7 +146,10 @@ class CourseDetail(APIView):
             if courseServiceResponse.status_code == requests.codes.ok:
                 return Response(courseServiceResponse.json())
             return Response(courseServiceResponse.json(), status=status.HTTP_404_NOT_FOUND)
-        except:
+        except requests.exceptions.ConnectionError:
+            print(1)
+            return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, id):
@@ -129,7 +158,10 @@ class CourseDetail(APIView):
             if courseServiceResponse.status_code == requests.codes.ok:
                 return Response(courseServiceResponse.json())
             return Response(courseServiceResponse.json(), status=status.HTTP_400_BAD_REQUEST)
-        except:
+        except requests.exceptions.ConnectionError:
+            print(1)
+            return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, id):
@@ -138,7 +170,10 @@ class CourseDetail(APIView):
             if courseServiceResponse.status_code == 204:
                 return Response(status=status.HTTP_204_NO_CONTENT)
             return Response(status=status.HTTP_404_NOT_FOUND)
-        except:
+        except requests.exceptions.ConnectionError:
+            print(1)
+            return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -171,7 +206,10 @@ class OrderList(APIView):
                         wasNoneCourseInfo = False
                 return Response(responseData)
             return Response(responseData, status=status.HTTP_404_NOT_FOUND)
-        except:
+        except requests.exceptions.ConnectionError:
+            print(1)
+            return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
     def post(self, request):
@@ -180,7 +218,10 @@ class OrderList(APIView):
             if orderServiceResponse.status_code == requests.codes.created:
                 return Response(orderServiceResponse.json(), status=status.HTTP_201_CREATED)
             return Response(orderServiceResponse.json(), status=status.HTTP_400_BAD_REQUEST)
-        except:
+        except requests.exceptions.ConnectionError:
+            print(1)
+            return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 class OrderDetail(APIView):
@@ -190,7 +231,10 @@ class OrderDetail(APIView):
             if orderServiceResponse.status_code == requests.codes.ok:
                 return Response(orderServiceResponse.json())
             return Response(orderServiceResponse.json(), status=status.HTTP_404_NOT_FOUND)
-        except:
+        except requests.exceptions.ConnectionError:
+            print(1)
+            return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, id):
@@ -199,7 +243,10 @@ class OrderDetail(APIView):
             if orderServiceResponse.status_code == requests.codes.ok:
                 return Response(orderServiceResponse.json())
             return Response(orderServiceResponse.json(), status=status.HTTP_400_BAD_REQUEST)
-        except:
+        except requests.exceptions.ConnectionError:
+            print(1)
+            return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, id):
@@ -220,7 +267,10 @@ class PaymentList(APIView):
                 responseData = fixResponsePaginationUrls(request, billingServiceResponse)
                 return Response(responseData)
             return Response(responseData, status=status.HTTP_404_NOT_FOUND)
-        except:
+        except requests.exceptions.ConnectionError:
+            print(1)
+            return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
     def post(self, request):
@@ -242,7 +292,10 @@ class PaymentList(APIView):
                         # TODO: ROLLBACK OR QUEUE REQUEST
             #TODO: change Response: delete body
             return Response(billingServiceResponse.json(), status=status.HTTP_400_BAD_REQUEST)
-        except:
+        except requests.exceptions.ConnectionError:
+            print(1)
+            return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 class PaymentDetail(APIView):
@@ -252,7 +305,10 @@ class PaymentDetail(APIView):
             if billingServiceResponse.status_code == requests.codes.ok:
                 return Response(billingServiceResponse.json())
             return Response(billingServiceResponse.json(), status=status.HTTP_404_NOT_FOUND)
-        except:
+        except requests.exceptions.ConnectionError:
+            print(1)
+            return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request, id):
@@ -261,7 +317,10 @@ class PaymentDetail(APIView):
             if billingServiceResponse.status_code == requests.codes.ok:
                 return Response(billingServiceResponse.json())
             return Response(billingServiceResponse.json(), status=status.HTTP_400_BAD_REQUEST)
-        except:
+        except requests.exceptions.ConnectionError:
+            print(1)
+            return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, id):
@@ -270,5 +329,8 @@ class PaymentDetail(APIView):
             if billingServiceResponse.status_code == 204:
                 return Response(status=status.HTTP_204_NO_CONTENT)
             return Response(status=status.HTTP_404_NOT_FOUND)
-        except:
+        except requests.exceptions.ConnectionError:
+            print(1)
+            return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
