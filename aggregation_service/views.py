@@ -43,6 +43,9 @@ def getObjectFromService(url, id):
 def getUnavailableErrorData():
     return {'error' : 'Service is unavailable.'}
 
+def getServerErrorData():
+    return {'error' : 'Unknown server error.'}
+
 class UserList(APIView):
     def get(self, request):
         try:
@@ -51,7 +54,10 @@ class UserList(APIView):
             if userServiceResponse.status_code == requests.codes.ok:
                 responseData = fixResponsePaginationUrls(request, userServiceResponse)
                 return Response(responseData)
-            return Response(userServiceResponse.json(), status=userServiceResponse.status_code)
+            elif userServiceResponse.status_code >= 500:
+                return Response(getServerErrorData(), status=userServiceResponse.status_code)
+            else:
+                return Response(userServiceResponse.json(), status=userServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
             return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
         else:
@@ -62,7 +68,10 @@ class UserList(APIView):
             userServiceResponse = requests.post(urlUserService+'users', json = request.data)
             if userServiceResponse.status_code == requests.codes.created:
                 return Response(userServiceResponse.json(), status=status.HTTP_201_CREATED)
-            return Response(userServiceResponse.json(), status=userServiceResponse.status_code)
+            elif userServiceResponse.status_code >= 500:
+                return Response(getServerErrorData(), status=userServiceResponse.status_code)
+            else:
+                return Response(userServiceResponse.json(), status=userServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
             return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
         else:
@@ -74,7 +83,10 @@ class UserDetail(APIView):
             userServiceResponse = requests.get(urlUserService+'users/'+id+'/')
             if userServiceResponse.status_code == requests.codes.ok:
                 return Response(userServiceResponse.json())
-            return Response(userServiceResponse.json(), status=userServiceResponse.status_code)
+            elif userServiceResponse.status_code >= 500:
+                return Response(getServerErrorData(), status=userServiceResponse.status_code)
+            else:
+                return Response(userServiceResponse.json(), status=userServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
             return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
         else:
@@ -85,7 +97,10 @@ class UserDetail(APIView):
             userServiceResponse = requests.put(urlUserService+'users/'+id+'/', json = request.data)
             if userServiceResponse.status_code == requests.codes.ok:
                 return Response(userServiceResponse.json())
-            return Response(userServiceResponse.json(), status=userServiceResponse.status_code)
+            elif userServiceResponse.status_code >= 500:
+                return Response(getServerErrorData(), status=userServiceResponse.status_code)
+            else:
+                return Response(userServiceResponse.json(), status=userServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
             return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
         else:
@@ -101,7 +116,10 @@ class UserDetail(APIView):
                     return Response(status=status.HTTP_204_NO_CONTENT)
                 #else:
                     # TODO: ROLLBACK OR QUEUE REQUEST
-            return Response(userServiceResponse.json(), status=userServiceResponse.status_code)
+            elif userServiceResponse.status_code >= 500:
+                return Response(getServerErrorData(), status=userServiceResponse.status_code)
+            else:
+                return Response(userServiceResponse.json(), status=userServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
             return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
         else:
@@ -115,7 +133,10 @@ class CourseList(APIView):
             if courseServiceResponse.status_code == requests.codes.ok:
                 responseData = fixResponsePaginationUrls(request, courseServiceResponse)
                 return Response(responseData)
-            return Response(courseServiceResponse.json(), status=courseServiceResponse.status_code)
+            elif courseServiceResponse.status_code >= 500:
+                return Response(getServerErrorData(), status=courseServiceResponse.status_code)
+            else:
+                return Response(courseServiceResponse.json(), status=courseServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
             return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
         else:
@@ -126,7 +147,10 @@ class CourseList(APIView):
             courseServiceResponse = requests.post(urlCourseService+'courses', json = request.data)
             if courseServiceResponse.status_code == requests.codes.created:
                 return Response(courseServiceResponse.json(), status=status.HTTP_201_CREATED)
-            return Response(courseServiceResponse.json(), status=courseServiceResponse.status_code)
+            elif courseServiceResponse.status_code >= 500:
+                return Response(getServerErrorData(), status=courseServiceResponse.status_code)
+            else:
+                return Response(courseServiceResponse.json(), status=courseServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
             return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
         else:
@@ -138,7 +162,10 @@ class CourseDetail(APIView):
             courseServiceResponse = requests.get(urlCourseService+'courses/'+id+'/')
             if courseServiceResponse.status_code == requests.codes.ok:
                 return Response(courseServiceResponse.json())
-            return Response(courseServiceResponse.json(), status=courseServiceResponse.status_code)
+            elif courseServiceResponse.status_code >= 500:
+                return Response(getServerErrorData(), status=courseServiceResponse.status_code)
+            else:
+                return Response(courseServiceResponse.json(), status=courseServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
             return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
         else:
@@ -149,7 +176,10 @@ class CourseDetail(APIView):
             courseServiceResponse = requests.put(urlCourseService+'courses/'+id+'/', json = request.data)
             if courseServiceResponse.status_code == requests.codes.ok:
                 return Response(courseServiceResponse.json())
-            return Response(courseServiceResponse.json(), courseServiceResponse.status_code)
+            elif courseServiceResponse.status_code >= 500:
+                return Response(getServerErrorData(), status=courseServiceResponse.status_code)
+            else:
+                return Response(courseServiceResponse.json(), courseServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
             return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
         else:
@@ -160,7 +190,10 @@ class CourseDetail(APIView):
             courseServiceResponse = requests.delete(urlCourseService+'courses/'+id+'/')
             if courseServiceResponse.status_code == 204:
                 return Response(status=status.HTTP_204_NO_CONTENT)
-            return Response(courseServiceResponse.json(), courseServiceResponse.status_code)
+            elif courseServiceResponse.status_code >= 500:
+                return Response(getServerErrorData(), status=courseServiceResponse.status_code)
+            else:
+                return Response(courseServiceResponse.json(), courseServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
             return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
         else:
@@ -183,19 +216,25 @@ class OrderList(APIView):
                     # get courses info
                     courses = orderData['courses']
                     coursesResult = []
+                    # Only if all information is available
                     wasNoneCourseInfo = False
-                    for courseId in orderData['courses']:
-                        courseInfo = getObjectFromService(urlCourseService+'courses/', courseId)
-                        if courseInfo:
-                            coursesResult.append(courseInfo)
-                        else:
-                            wasNoneCourseInfo = True
+                    for course in orderData['courses']:
+                        if 'course_id' in course:
+                            courseId = course['course_id']
+                            courseInfo = getObjectFromService(urlCourseService+'courses/', courseId)
+                            if courseInfo:
+                                coursesResult.append(courseInfo)
+                            else:
+                                wasNoneCourseInfo = True
                     if wasNoneCourseInfo is False:
                         orderData['courses'] = coursesResult
                     else: # TODO: check for needs
                         wasNoneCourseInfo = False
                 return Response(responseData)
-            return Response(orderServiceResponse.json(), status=orderServiceResponse.status_code)
+            elif orderServiceResponse.status_code >= 500:
+                return Response(getServerErrorData(), status=orderServiceResponse.status_code)
+            else:
+                return Response(orderServiceResponse.json(), status=orderServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
             return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
         else:
@@ -206,7 +245,10 @@ class OrderList(APIView):
             orderServiceResponse = requests.post(urlOrderService+'orders', json = request.data)
             if orderServiceResponse.status_code == requests.codes.created:
                 return Response(orderServiceResponse.json(), status=status.HTTP_201_CREATED)
-            return Response(orderServiceResponse.json(), status=orderServiceResponse.status_code)
+            elif orderServiceResponse.status_code >= 500:
+                return Response(getServerErrorData(), status=orderServiceResponse.status_code)
+            else:
+                return Response(orderServiceResponse.json(), status=orderServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
             return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
         else:
@@ -218,7 +260,10 @@ class OrderDetail(APIView):
             orderServiceResponse = requests.get(urlOrderService+'orders/'+id+'/')
             if orderServiceResponse.status_code == requests.codes.ok:
                 return Response(orderServiceResponse.json())
-            return Response(orderServiceResponse.json(), status=orderServiceResponse.status_code)
+            elif orderServiceResponse.status_code >= 500:
+                return Response(getServerErrorData(), status=orderServiceResponse.status_code)
+            else:
+                return Response(orderServiceResponse.json(), status=orderServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
             return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
         else:
@@ -230,7 +275,10 @@ class OrderDetail(APIView):
                 params = request.query_params, json = request.data)
             if orderServiceResponse.status_code == requests.codes.ok:
                 return Response(orderServiceResponse.json())
-            return Response(orderServiceResponse.json(), status=orderServiceResponse.status_code)
+            elif orderServiceResponse.status_code >= 500:
+                return Response(getServerErrorData(), status=orderServiceResponse.status_code)
+            else:
+                return Response(orderServiceResponse.json(), status=orderServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
             return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
         else:
@@ -241,7 +289,10 @@ class OrderDetail(APIView):
             orderServiceResponse = requests.delete(urlOrderService+'orders/'+id+'/')
             if orderServiceResponse.status_code == 204:
                 return Response(status=status.HTTP_204_NO_CONTENT)
-            return Response(orderServiceResponse.json(), status=orderServiceResponse.status_code)
+            elif orderServiceResponse.status_code >= 500:
+                return Response(getServerErrorData(), status=orderServiceResponse.status_code)
+            else:
+                return Response(orderServiceResponse.json(), status=orderServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
             return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
         else:
@@ -255,7 +306,10 @@ class PaymentList(APIView):
             if billingServiceResponse.status_code == requests.codes.ok:
                 responseData = fixResponsePaginationUrls(request, billingServiceResponse)
                 return Response(responseData)
-            return Response(billingServiceResponse.json(), status=billingServiceResponse.status_code)
+            elif billingServiceResponse.status_code >= 500:
+                return Response(getServerErrorData(), status=billingServiceResponse.status_code)
+            else:
+                return Response(billingServiceResponse.json(), status=billingServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
             return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
         else:
@@ -279,7 +333,10 @@ class PaymentList(APIView):
                     #else:
                         # TODO: ROLLBACK OR QUEUE REQUEST
             #TODO: change Response: delete body
-            return Response(billingServiceResponse.json(), status=billingServiceResponse.status_code)
+            elif billingServiceResponse.status_code >= 500:
+                return Response(getServerErrorData(), status=billingServiceResponse.status_code)
+            else:
+                return Response(billingServiceResponse.json(), status=billingServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
             return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
         else:
@@ -291,7 +348,10 @@ class PaymentDetail(APIView):
             billingServiceResponse = requests.get(urlBillingService+'payments/'+id+'/')
             if billingServiceResponse.status_code == requests.codes.ok:
                 return Response(billingServiceResponse.json())
-            return Response(billingServiceResponse.json(), status=billingServiceResponse.status_code)
+            elif billingServiceResponse.status_code >= 500:
+                return Response(getServerErrorData(), status=billingServiceResponse.status_code)
+            else:
+                return Response(billingServiceResponse.json(), status=billingServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
             return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
         else:
@@ -302,7 +362,10 @@ class PaymentDetail(APIView):
             billingServiceResponse = requests.put(urlBillingService+'payments/'+id+'/', json = request.data)
             if billingServiceResponse.status_code == requests.codes.ok:
                 return Response(billingServiceResponse.json())
-            return Response(billingServiceResponse.json(), status=billingServiceResponse.status_code)
+            elif billingServiceResponse.status_code >= 500:
+                return Response(getServerErrorData(), status=billingServiceResponse.status_code)
+            else:
+                return Response(billingServiceResponse.json(), status=billingServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
             return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
         else:
@@ -313,7 +376,10 @@ class PaymentDetail(APIView):
             billingServiceResponse = requests.delete(urlBillingService+'payments/'+id+'/')
             if billingServiceResponse.status_code == 204:
                 return Response(status=status.HTTP_204_NO_CONTENT)
-            return Response(billingServiceResponse.json(), status=billingServiceResponse.status_code)
+            elif billingServiceResponse.status_code >= 500:
+                return Response(getServerErrorData(), status=billingServiceResponse.status_code)
+            else:
+                return Response(billingServiceResponse.json(), status=billingServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
             return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
         else:
