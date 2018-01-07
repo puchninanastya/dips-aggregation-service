@@ -12,10 +12,14 @@ import requests
 
 from aggregation_service.tasks import deleteUserOrders
 
-""" Services urls """
+""" Services settings """
+nameUserService = 'User service'
 urlUserService = 'http://127.0.0.1:8001/'
+nameCourseService = 'Course service'
 urlCourseService = 'http://127.0.0.1:8002/'
+nameOrderService = 'Order service'
 urlOrderService = 'http://127.0.0.1:8003/'
+nameBillingService = 'Billing service'
 urlBillingService = 'http://127.0.0.1:8004/'
 
 def fixResponsePaginationUrls(request, response):
@@ -42,8 +46,8 @@ def getObjectFromService(url, id):
     except:
         return None
 
-def getUnavailableErrorData():
-    return {'error' : 'Service is unavailable.'}
+def getUnavailableErrorData(serviceName):
+    return {'error' : '{} is unavailable.'.format(serviceName)}
 
 def getServerErrorData():
     return {'error' : 'Unknown server error.'}
@@ -60,7 +64,7 @@ class UserList(APIView):
             else:
                 return Response(userServiceResponse.json(), status=userServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
-            return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            return JsonResponse(getUnavailableErrorData(nameUserService), status=status.HTTP_503_SERVICE_UNAVAILABLE)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -74,7 +78,7 @@ class UserList(APIView):
             else:
                 return Response(userServiceResponse.json(), status=userServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
-            return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            return JsonResponse(getUnavailableErrorData(nameUserService), status=status.HTTP_503_SERVICE_UNAVAILABLE)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -89,7 +93,7 @@ class UserDetail(APIView):
             else:
                 return Response(userServiceResponse.json(), status=userServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
-            return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            return JsonResponse(getUnavailableErrorData(nameUserService), status=status.HTTP_503_SERVICE_UNAVAILABLE)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -103,7 +107,7 @@ class UserDetail(APIView):
             else:
                 return Response(userServiceResponse.json(), status=userServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
-            return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            return JsonResponse(getUnavailableErrorData(nameUserService), status=status.HTTP_503_SERVICE_UNAVAILABLE)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -119,7 +123,7 @@ class UserDetail(APIView):
             else:
                 return Response(userServiceResponse.json(), status=userServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
-            return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            return JsonResponse(getUnavailableErrorData(nameUserService), status=status.HTTP_503_SERVICE_UNAVAILABLE)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -136,7 +140,7 @@ class CourseList(APIView):
             else:
                 return Response(courseServiceResponse.json(), status=courseServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
-            return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            return JsonResponse(getUnavailableErrorData(nameCourseService), status=status.HTTP_503_SERVICE_UNAVAILABLE)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -150,7 +154,7 @@ class CourseList(APIView):
             else:
                 return Response(courseServiceResponse.json(), status=courseServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
-            return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            return JsonResponse(getUnavailableErrorData(nameCourseService), status=status.HTTP_503_SERVICE_UNAVAILABLE)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -165,7 +169,7 @@ class CourseDetail(APIView):
             else:
                 return Response(courseServiceResponse.json(), status=courseServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
-            return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            return JsonResponse(getUnavailableErrorData(nameCourseService), status=status.HTTP_503_SERVICE_UNAVAILABLE)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -179,7 +183,7 @@ class CourseDetail(APIView):
             else:
                 return Response(courseServiceResponse.json(), courseServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
-            return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            return JsonResponse(getUnavailableErrorData(nameCourseService), status=status.HTTP_503_SERVICE_UNAVAILABLE)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -193,7 +197,7 @@ class CourseDetail(APIView):
             else:
                 return Response(courseServiceResponse.json(), courseServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
-            return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            return JsonResponse(getUnavailableErrorData(nameCourseService), status=status.HTTP_503_SERVICE_UNAVAILABLE)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -234,7 +238,7 @@ class OrderList(APIView):
             else:
                 return Response(orderServiceResponse.json(), status=orderServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
-            return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            return JsonResponse(getUnavailableErrorData(nameOrderService), status=status.HTTP_503_SERVICE_UNAVAILABLE)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -248,7 +252,7 @@ class OrderList(APIView):
             else:
                 return Response(orderServiceResponse.json(), status=orderServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
-            return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            return JsonResponse(getUnavailableErrorData(nameOrderService), status=status.HTTP_503_SERVICE_UNAVAILABLE)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -263,7 +267,7 @@ class OrderDetail(APIView):
             else:
                 return Response(orderServiceResponse.json(), status=orderServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
-            return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            return JsonResponse(getUnavailableErrorData(nameOrderService), status=status.HTTP_503_SERVICE_UNAVAILABLE)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -278,7 +282,7 @@ class OrderDetail(APIView):
             else:
                 return Response(orderServiceResponse.json(), status=orderServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
-            return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            return JsonResponse(getUnavailableErrorData(nameOrderService), status=status.HTTP_503_SERVICE_UNAVAILABLE)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -292,7 +296,7 @@ class OrderDetail(APIView):
             else:
                 return Response(orderServiceResponse.json(), status=orderServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
-            return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            return JsonResponse(getUnavailableErrorData(nameOrderService), status=status.HTTP_503_SERVICE_UNAVAILABLE)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -309,7 +313,7 @@ class PaymentList(APIView):
             else:
                 return Response(billingServiceResponse.json(), status=billingServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
-            return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            return JsonResponse(getUnavailableErrorData(nameBillingService), status=status.HTTP_503_SERVICE_UNAVAILABLE)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -341,7 +345,7 @@ class PaymentList(APIView):
                 return Response(billingServiceResponse.json(), status=billingServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
             if not billingServiceSuccess:
-                return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+                return JsonResponse(getUnavailableErrorData(nameBillingService), status=status.HTTP_503_SERVICE_UNAVAILABLE)
             else:
                 # Rollback: delete created payment in billing service
                 paymentId = billingServiceResponse.json()['id']
@@ -349,13 +353,12 @@ class PaymentList(APIView):
                     return Response(getServerErrorData(), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
                 rollbackResponse = requests.delete(urlBillingService+'payments/'+str(paymentId)+'/')
                 if rollbackResponse.status_code == requests.codes.no_content:
-                    return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+                    return JsonResponse(getUnavailableErrorData("Service"), status=status.HTTP_503_SERVICE_UNAVAILABLE)
                 # TODO: billing service can become unavailable, need to process this case
                 return Response(getServerErrorData(), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-#TODO: fix str(id) bugs
 class PaymentDetail(APIView):
     def get(self, request, id):
         try:
@@ -367,7 +370,7 @@ class PaymentDetail(APIView):
             else:
                 return Response(billingServiceResponse.json(), status=billingServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
-            return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            return JsonResponse(getUnavailableErrorData(nameBillingService), status=status.HTTP_503_SERVICE_UNAVAILABLE)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -381,7 +384,7 @@ class PaymentDetail(APIView):
             else:
                 return Response(billingServiceResponse.json(), status=billingServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
-            return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            return JsonResponse(getUnavailableErrorData(nameBillingService), status=status.HTTP_503_SERVICE_UNAVAILABLE)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -395,6 +398,6 @@ class PaymentDetail(APIView):
             else:
                 return Response(billingServiceResponse.json(), status=billingServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
-            return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            return JsonResponse(getUnavailableErrorData(nameBillingService), status=status.HTTP_503_SERVICE_UNAVAILABLE)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
