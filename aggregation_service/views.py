@@ -64,7 +64,6 @@ class UserList(APIView):
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-    # TODO: check requests post/put for slashes
     def post(self, request):
         try:
             userServiceResponse = requests.post(urlUserService+'users/', json = request.data)
@@ -315,9 +314,12 @@ class PaymentList(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
     def post(self, request):
+        billingServiceSuccess = False
+        billingServiceResponse = None
         try:
             billingServiceResponse = requests.post(urlBillingService+'payments/', json = request.data)
             if billingServiceResponse.status_code == requests.codes.created:
+                billingServiceSuccess = True
                 # change order payment status
                 payment = billingServiceResponse.json()
                 orderId = payment['order_id']
@@ -329,18 +331,31 @@ class PaymentList(APIView):
                     if orderServiceResponse.status_code == requests.codes.ok:
                         #TODO: check payment status
                         return Response(billingServiceResponse.json(), status=status.HTTP_201_CREATED)
-                    #else:
-                        # TODO: ROLLBACK OR QUEUE REQUEST
+                    else:
+                        return Response(orderServiceResponse.json(), status=orderServiceResponse.status_code)
+                        # TODO: ROLLBACK
             #TODO: change Response: delete body
             elif billingServiceResponse.status_code >= 500:
                 return Response(getServerErrorData(), status=billingServiceResponse.status_code)
             else:
                 return Response(billingServiceResponse.json(), status=billingServiceResponse.status_code)
         except requests.exceptions.ConnectionError:
-            return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            if not billingServiceSuccess:
+                return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+            else:
+                # Rollback: delete created payment in billing service
+                paymentId = billingServiceResponse.json()['id']
+                if paymentId is None:
+                    return Response(getServerErrorData(), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                rollbackResponse = requests.delete(urlBillingService+'payments/'+str(paymentId)+'/')
+                if rollbackResponse.status_code == requests.codes.no_content:
+                    return JsonResponse(getUnavailableErrorData(), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+                # TODO: billing service can become unavailable, need to process this case
+                return Response(getServerErrorData(), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
+#TODO: fix str(id) bugs
 class PaymentDetail(APIView):
     def get(self, request, id):
         try:
