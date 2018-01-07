@@ -10,6 +10,8 @@ from rest_framework import status
 
 import requests
 
+from aggregation_service.tasks import deleteUserOrders
+
 """ Services urls """
 urlUserService = 'http://127.0.0.1:8001/'
 urlCourseService = 'http://127.0.0.1:8002/'
@@ -50,7 +52,6 @@ class UserList(APIView):
     def get(self, request):
         try:
             userServiceResponse = requests.get(urlUserService+'users/', params = request.query_params)
-            print(0)
             if userServiceResponse.status_code == requests.codes.ok:
                 responseData = fixResponsePaginationUrls(request, userServiceResponse)
                 return Response(responseData)
@@ -63,9 +64,10 @@ class UserList(APIView):
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
+    # TODO: check requests post/put for slashes
     def post(self, request):
         try:
-            userServiceResponse = requests.post(urlUserService+'users', json = request.data)
+            userServiceResponse = requests.post(urlUserService+'users/', json = request.data)
             if userServiceResponse.status_code == requests.codes.created:
                 return Response(userServiceResponse.json(), status=status.HTTP_201_CREATED)
             elif userServiceResponse.status_code >= 500:
@@ -111,11 +113,8 @@ class UserDetail(APIView):
             userServiceResponse = requests.delete(urlUserService+'users/'+id+'/')
             if userServiceResponse.status_code == 204:
                 # delete user orders
-                orderServiceResponse = requests.delete(urlOrderService+'users/'+id+'/orders')
-                if orderServiceResponse.status_code == 204 or orderServiceResponse.status_code == 404:
-                    return Response(status=status.HTTP_204_NO_CONTENT)
-                #else:
-                    # TODO: ROLLBACK OR QUEUE REQUEST
+                deleteUserOrders.delay(id)
+                return Response(status=status.HTTP_204_NO_CONTENT)
             elif userServiceResponse.status_code >= 500:
                 return Response(getServerErrorData(), status=userServiceResponse.status_code)
             else:
@@ -129,7 +128,7 @@ class UserDetail(APIView):
 class CourseList(APIView):
     def get(self, request):
         try:
-            courseServiceResponse = requests.get(urlCourseService+'courses', params = request.query_params)
+            courseServiceResponse = requests.get(urlCourseService+'courses/', params = request.query_params)
             if courseServiceResponse.status_code == requests.codes.ok:
                 responseData = fixResponsePaginationUrls(request, courseServiceResponse)
                 return Response(responseData)
@@ -144,7 +143,7 @@ class CourseList(APIView):
 
     def post(self, request):
         try:
-            courseServiceResponse = requests.post(urlCourseService+'courses', json = request.data)
+            courseServiceResponse = requests.post(urlCourseService+'courses/', json = request.data)
             if courseServiceResponse.status_code == requests.codes.created:
                 return Response(courseServiceResponse.json(), status=status.HTTP_201_CREATED)
             elif courseServiceResponse.status_code >= 500:
@@ -203,7 +202,7 @@ class CourseDetail(APIView):
 class OrderList(APIView):
     def get(self, request):
         try:
-            orderServiceResponse = requests.get(urlOrderService+'orders', params = request.query_params)
+            orderServiceResponse = requests.get(urlOrderService+'orders/', params = request.query_params)
             if orderServiceResponse.status_code == requests.codes.ok:
                 responseData = fixResponsePaginationUrls(request, orderServiceResponse)
                 # TODO: do try except for user and course services requests
@@ -242,7 +241,7 @@ class OrderList(APIView):
 
     def post(self, request):
         try:
-            orderServiceResponse = requests.post(urlOrderService+'orders', json = request.data)
+            orderServiceResponse = requests.post(urlOrderService+'orders/', json = request.data)
             if orderServiceResponse.status_code == requests.codes.created:
                 return Response(orderServiceResponse.json(), status=status.HTTP_201_CREATED)
             elif orderServiceResponse.status_code >= 500:
@@ -302,7 +301,7 @@ class OrderDetail(APIView):
 class PaymentList(APIView):
     def get(self, request):
         try:
-            billingServiceResponse = requests.get(urlBillingService+'payments', params = request.query_params)
+            billingServiceResponse = requests.get(urlBillingService+'payments/', params = request.query_params)
             if billingServiceResponse.status_code == requests.codes.ok:
                 responseData = fixResponsePaginationUrls(request, billingServiceResponse)
                 return Response(responseData)
