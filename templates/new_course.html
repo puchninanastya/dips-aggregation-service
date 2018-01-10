@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block title %} Добавить новый курс {% endblock %}
+
+{% block pagecontent %}
+
+{% include "forms.html" with form=course_form %}
+
+{% endblock %}

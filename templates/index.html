@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block pagecontent %}
+
+<!--banner-->
+<div class="banner">
+  <!-- banner-text Slider starts Here -->
+  <script src="js/responsiveslides.min.js"></script>
+  <script>
+    // You can also use "$(window).load(function() {"
+      $(function () {
+      // Slideshow 3
+        $("#slider3").responsiveSlides({
+        auto: true,
+        pager:true,
+        nav:true,
+        speed: 500,
+        namespace: "callbacks",
+        before: function () {
+        $('.events').append("<li>before event fired.</li>");
+        },
+        after: function () {
+          $('.events').append("<li>after event fired.</li>");
+        }
+      });
+    });
+  </script>
+  <!--//End-slider-script -->
+  <div  id="top" class="callbacks_container">
+    <ul class="rslides" id="slider3">
+      <li>
+        <div class="banner1">
+        </div>
+      </li>
+      <li>
+        <div class="banner1 banner2">
+        </div>
+      </li>
+    </ul>
+    <div class="clearfix"> </div>
+  </div>
+</div>
+<!--//banner-->
+
+<!--welcome-->
+<div class="welcome">
+  <div class="container">
+    <h1 class="hdng">Сильнейшая школа моделей в России объявляет набор!</h1>
+    <p>Научись всему, что должна уметь модель, в школе при лучшем российском модельном агенстве!</p>
+    <div class="welcome-info">
+      <div class="col-md-6 welcome-grids">
+        <img src="images/img1.jpg" alt=""/>
+      </div>
+      <div class="col-md-6 welcome-grids">
+        <img src="images/img2.jpg" alt=""/>
+      </div>
+      <div class="clearfix"> </div>
+    </div>
+    <p>Выбери только самые интересные и полезные для себя предметы. Уже после первого месяца обучения будет заметный прогресс. Лучшие выпускники школы получают предложения от модельных агентств, работая в Москве, Париже, Лондоне, Милане, Берлине, Токио, Гуанчжоу и Нью-Йорке.</p>
+  </div>
+</div>
+<!--//welcome-->
+
+{% endblock %}

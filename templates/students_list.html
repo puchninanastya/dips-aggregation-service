@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %} Ученики {% endblock %}
+
+{% block pagecontent %}
+
+<!--students-->
+	<div class="news">
+		<div class="container">
+			<h1 class="hdng">Наши ученики</h1>
+			<h2 class="hdng-two">Наша модельная школа имеет большое сообщество единомышленников, среди них:</h2>
+			<div class="news-info">
+
+        {% for current_student in students %}
+          {% include "student_block.html" with student=current_student %}
+        {% endfor %}
+
+				<div class="clearfix"> </div>
+			</div>
+		</div>
+	</div>
+<!--//students-->
+
+{% endblock %}

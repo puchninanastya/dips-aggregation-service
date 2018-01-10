@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %} Курс {{ course.name }} {% endblock %}
+
+{% block pagecontent %}
+
+<!--courses-->
+<div class="about">
+  <div class="container">
+    <h1 class="hdng">Курс {{ course.name }}</h1>
+
+    <div class="about-text">
+      <div class="col-md-12 about-text-right">
+        <p><a href="{% url 'course-change' cid=course.id %}">Change course</a></p>
+        <p><a href="{% url 'course-delete' cid=course.id %}">Delete course</a></p>
+        <p class="courses-date">Дата старта: {{ course.start_date }}</p>
+        <p class="courses-date">Дата окончания: {{ course.end_date }}</p>
+        <p class="courses-price">Цена курса: {{ course.price }}р</p>
+        <p>{{ course.description }}</p>
+      </div>
+    </div>
+    <div class="clearfix"> </div>
+
+
+  </div>
+</div>
+<!--//courses-->
+
+{% endblock %}

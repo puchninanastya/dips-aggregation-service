@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %} Курсы {% endblock %}
+
+{% block pagecontent %}
+
+<!--courses-->
+<div class="about">
+  <div class="container">
+    <h1 class="hdng">Курсы модельной школы</h1>
+
+      {% for current_course in courses %}
+        {% include "course_block.html" with course=current_course %}
+      {% endfor %}
+
+  </div>
+</div>
+<!--//courses-->
+
+{% endblock %}
