@@ -4,6 +4,10 @@
 
 {% block pagecontent %}
 
+<!--banner-->
+	<div class="banner1 about-bnr">
+	</div>
+<!--//banner-->
 <!--students-->
 	<div class="news">
 		<div class="container">
@@ -11,9 +15,15 @@
 			<h2 class="hdng-two">Наша модельная школа имеет большое сообщество единомышленников, среди них:</h2>
 			<div class="news-info">
 
-        {% for current_student in students %}
-          {% include "student_block.html" with student=current_student %}
-        {% endfor %}
+				{% if error_msg %}
+					{{ error_msg }}
+
+				{% else %}
+	        {% for current_student in students %}
+	          {% include "student_block.html" with student=current_student %}
+	        {% endfor %}
+
+				{% endif %}
 
 				<div class="clearfix"> </div>
 			</div>

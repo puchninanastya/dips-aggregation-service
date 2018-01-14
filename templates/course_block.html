@@ -1,10 +1,8 @@
 {% load static %}
 <div class="about-text">
   <div class="col-md-12 about-text-right">
-    <h4><a href="{% url 'course' cid=course.id %}">{{ course.name }}</a></h4>
+    <h4><a href="{% url 'course-detail' cid=course.id %}">{{ course.name }}</a></h4>
     <p class="courses-date">Дата старта: {{ course.start_date }}</p>
-    <p class="courses-date">Дата окончания: {{ course.end_date }}</p>
-    <p class="courses-price">Цена курса: {{ course.price }}р</p>
     <p>{{ course.description }}</p>
   </div>
 </div>

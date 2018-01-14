@@ -1,13 +1,13 @@
 {% load static %}
 <div class="col-md-6 news-grids">
   <div class="news-grids-left">
-    <img src="images/img19.jpg" class="img-responsive" alt="/">
+    <img src="{% static 'images/coco.jpg' %}" class="img-responsive" alt="/">
   </div>
   <div class="news-grids-right">
     <h5>{{ student.first_name }} {{ student.last_name }}</h5>
-    <p>Рост: 175</p>
-    <p>Фигура: 85-58-90</p>
-    <p><a href="#">Подробнее</a></p>
+    <p>Рост: {{ student.profile.height }}</p>
+    <p>Фигура: {{ student.profile.bust }}-{{ student.profile.waist }}-{{ student.profile.hips }}</p>
+    <p><a href="{% url 'student-detail' sid=student.id %}">Подробнее</a></p>
   </div>
   <div class="clearfix"> </div>
 </div>

@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %} {{ course_operation }} {% endblock %}
+{% block title %} {{ student_operation }} {% endblock %}
 
 {% block pagecontent %}
 
@@ -11,17 +11,17 @@
 <!--course-form-->
 <div class="about">
   <div class="container">
-    <h1 class="hdng">Курсы модельной школы</h1>
+    <h1 class="hdng">Ученики модельной школы</h1>
 
     <div class="about-text">
       <div class="col-md-12 about-text-right">
-        <h4>{{ course_operation }}</h4>
+        <h4>{{ student_operation }}</h4>
 
-        {% include "forms.html" with form=course_form %}
+        {% include "forms.html" with form=student_form %}
       </div>
     </div>
     <div class="clearfix"> </div>
-    
+
   </div>
 </div>
 <!--//course-form-->

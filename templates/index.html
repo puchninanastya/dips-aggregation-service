@@ -1,11 +1,12 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block pagecontent %}
 
 <!--banner-->
 <div class="banner">
   <!-- banner-text Slider starts Here -->
-  <script src="js/responsiveslides.min.js"></script>
+  <script src="{% static 'js/responsiveslides.min.js' %}"></script>
   <script>
     // You can also use "$(window).load(function() {"
       $(function () {
@@ -49,10 +50,10 @@
     <p>Научись всему, что должна уметь модель, в школе при лучшем российском модельном агенстве!</p>
     <div class="welcome-info">
       <div class="col-md-6 welcome-grids">
-        <img src="images/img1.jpg" alt=""/>
+        <img src="{% static 'images/img1.jpg' %}" alt=""/>
       </div>
       <div class="col-md-6 welcome-grids">
-        <img src="images/img2.jpg" alt=""/>
+        <img src="{% static 'images/img2.jpg' %}" alt=""/>
       </div>
       <div class="clearfix"> </div>
     </div>

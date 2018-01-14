@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %} Профиль {{ student.first_name }} {{ student.last_name }} {% endblock %}
+
+{% block pagecontent %}
+
+<!--banner-->
+	<div class="banner1 about-bnr">
+	</div>
+<!--//banner-->
+<!--courses-->
+<div class="about">
+  <div class="container">
+
+    {% if error_msg %}
+      {{ error_msg }}
+
+    {% else %}
+
+    <h1 class="hdng">Ученики модельной школы</h1>
+
+    <div class="about-text">
+      <div class="col-md-12 about-text-right">
+        <h4>{{ student.first_name }} {{ student.last_name }}</h4>
+        <p><a href="{% url 'student-change' sid=student.id %}">Изменить данные</a></p>
+				<p>Email: {{ student.email }}
+				<p>Номер телефона: {{ student.profile.phone_number }}</p>
+				<p>Дата рождения: {{ student.profile.birth_date }}</p>
+		    <p>Грудь: {{ student.profile.bust }}</p>
+				<p>Талия: {{ student.profile.waist }}</p>
+				<p>Бедра: {{ student.profile.hips }}</p>
+				<p>Цвет глаз: {{ student.profile.eyes }}</p>
+				<p>Цвет волос: {{ student.profile.hair }}</p>
+      </div>
+    </div>
+    <div class="clearfix"> </div>
+
+    {% endif %}
+
+  </div>
+</div>
+<!--//courses-->
+
+{% endblock %}

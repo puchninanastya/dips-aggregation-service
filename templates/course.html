@@ -4,15 +4,25 @@
 
 {% block pagecontent %}
 
+<!--banner-->
+	<div class="banner1 about-bnr">
+	</div>
+<!--//banner-->
 <!--courses-->
 <div class="about">
   <div class="container">
-    <h1 class="hdng">Курс {{ course.name }}</h1>
+
+    {% if error_msg %}
+      {{ error_msg }}
+
+    {% else %}
+
+    <h1 class="hdng">Курсы модельной школы</h1>
 
     <div class="about-text">
       <div class="col-md-12 about-text-right">
+        <h4>{{ course.name }}</h4>
         <p><a href="{% url 'course-change' cid=course.id %}">Change course</a></p>
-        <p><a href="{% url 'course-delete' cid=course.id %}">Delete course</a></p>
         <p class="courses-date">Дата старта: {{ course.start_date }}</p>
         <p class="courses-date">Дата окончания: {{ course.end_date }}</p>
         <p class="courses-price">Цена курса: {{ course.price }}р</p>
@@ -21,6 +31,7 @@
     </div>
     <div class="clearfix"> </div>
 
+    {% endif %}
 
   </div>
 </div>
