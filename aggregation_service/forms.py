@@ -43,6 +43,12 @@ class CourseForm(forms.Form):
         return end_date
 
 class StudentForm(forms.Form):
+    username = forms.CharField(
+        max_length=60,
+        widget=forms.TextInput(
+            attrs={
+            'placeholder':'Enter username'
+            }))
     first_name = forms.CharField(
         max_length=60,
         widget=forms.TextInput(
@@ -120,4 +126,54 @@ class StudentForm(forms.Form):
         widget=forms.TextInput(
             attrs={
             'placeholder':'Enter hair color'
+            }))
+
+class OrderForm(forms.Form):
+    user = forms.IntegerField(
+        min_value=0,
+        widget=forms.TextInput(
+            attrs={
+            'placeholder':'User id'
+            }))
+    order_date = forms.DateTimeField(
+        widget=forms.DateTimeInput(
+            attrs={
+            'placeholder':'Set datetime of order or null for autoset'
+            }))
+
+class PaymentForm(forms.Form):
+    order_id = forms.IntegerField(
+        min_value=0,
+        widget=forms.TextInput(
+            attrs={
+            'placeholder':'Order id'
+            }))
+    payment_date = forms.DateTimeField(
+        widget=forms.DateTimeInput(
+            attrs={
+            'placeholder':'Set date of payment or null for autoset'
+            }))
+    amount_paid = forms.IntegerField(
+        widget=forms.TextInput(
+            attrs={
+            'placeholder':'Amount paid (in rubles)'
+            }))
+    PAYMENT_METHOD_CHOICES = (
+        ('CH', "By cash"),
+        ('CD', "By card")
+    )
+    payment_method = forms.ChoiceField(
+        choices = PAYMENT_METHOD_CHOICES,
+        required=True)
+    account_number_regex = RegexValidator(
+        regex=r'^\d{,20}$',
+        message="This field should contain only digits."
+    )
+    account_number = forms.CharField(
+        validators=[account_number_regex],
+        max_length=20,
+        required=False,
+        widget=forms.TextInput(
+            attrs={
+            'placeholder':'Enter account number for payment by card" '
             }))

@@ -25,6 +25,13 @@ urlpatterns = [
      url(r'^students/(?P<sid>\w+)/', views.GuiStudentDetailView.as_view(), name='student-detail'),
      url(r'^students/$', views.GuiStudentListView.as_view(), name='students-list'),
 
+     url(r'^orders/(?P<oid>\w+)/', views.GuiOrderDetailView.as_view(), name='order-detail'),
+     url(r'^orders/$', views.GuiOrderListView.as_view(), name='orders-list'),
+
+     url(r'^payments/(?P<pid>\w+)/change/$', views.GuiChangePaymentView.as_view(), name='payment-change'),
+     url(r'^payments/(?P<pid>\w+)/', views.GuiPaymentDetailView.as_view(), name='payment-detail'),
+     url(r'^payments/$', views.GuiPaymentListView.as_view(), name='payments-list'),
+
      url(r'^/contacts/$', views.contacts, name='contacts'),
      url(r'^$', views.index, name='index'),
 ]
