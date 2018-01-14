@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %} Заказ {{ student.first_name }} {{ student.last_name }} {% endblock %}
+
+{% block pagecontent %}
+
+<!--banner-->
+	<div class="banner1 about-bnr">
+	</div>
+<!--//banner-->
+<!--courses-->
+<div class="about">
+  <div class="container">
+
+    {% if error_msg %}
+      {{ error_msg }}
+
+    {% else %}
+
+    <h1 class="hdng">Заказ на покупку курса модельной школы</h1>
+
+    <div class="about-text">
+      <div class="col-md-12 about-text-right">
+        <h4>{{ order.id }}</h4>
+        <p><a href="{% url 'order-change' oid=order.id %}">Изменить данные</a></p>
+				<p>User: {{ order.user.id }} {{ order.user.first_name }} {{ order.user.last_name }}
+				<p>Дата: {{ order.order_date }}</p>
+				<p>Amount: {{ order.amount }}</p>
+				<p>Is paid: {{ order.is_paid }}</p>
+
+				{% for current_course in courses %}
+					{% include "course_block.html" with course=current_course %}
+				{% endfor %}
+
+      </div>
+    </div>
+    <div class="clearfix"> </div>
+
+    {% endif %}
+
+  </div>
+</div>
+<!--//courses-->
+
+{% endblock %}

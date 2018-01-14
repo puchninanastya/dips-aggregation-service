@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %} Платежи {% endblock %}
+
+{% block pagecontent %}
+
+<!--banner-->
+	<div class="banner1 about-bnr">
+	</div>
+<!--//banner-->
+<!--payments-->
+<div class="about">
+  <div class="container">
+    <h1 class="hdng">Платежи заказов модельной школы</h1>
+
+				{% if error_msg %}
+					{{ error_msg }}
+
+				{% else %}
+	        {% for current_payment in payments %}
+	          {% include "payment_block.html" with payment=current_payment %}
+	        {% endfor %}
+
+				{% endif %}
+
+				<div class="clearfix"> </div>
+		</div>
+	</div>
+<!--//payments-->
+
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %} {{ payment_operation }} {% endblock %}
+
+{% block pagecontent %}
+
+<!--banner-->
+	<div class="banner1 about-bnr">
+	</div>
+<!--//banner-->
+<!--course-form-->
+<div class="about">
+  <div class="container">
+    <h1 class="hdng">Платежи заказов модельной школы</h1>
+
+    <div class="about-text">
+      <div class="col-md-12 about-text-right">
+        <h4>{{ payment_operation }}</h4>
+
+        {% include "forms.html" with form=payment_form %}
+      </div>
+    </div>
+    <div class="clearfix"> </div>
+
+  </div>
+</div>
+<!--//course-form-->
+
+{% endblock %}

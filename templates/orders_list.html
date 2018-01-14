@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %} Заказы {% endblock %}
+
+{% block pagecontent %}
+
+<!--banner-->
+	<div class="banner1 about-bnr">
+	</div>
+<!--//banner-->
+<!--orders-->
+<div class="about">
+  <div class="container">
+    <h1 class="hdng">Курсы модельной школы</h1>
+
+				{% if error_msg %}
+					{{ error_msg }}
+
+				{% else %}
+	        {% for current_order in orders %}
+	          {% include "order_block.html" with order=current_order %}
+	        {% endfor %}
+
+				{% endif %}
+
+				<div class="clearfix"> </div>
+		</div>
+	</div>
+<!--//orders-->
+
+{% endblock %}

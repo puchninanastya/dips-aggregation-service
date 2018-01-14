@@ -1,0 +1,10 @@
+{% load static %}
+<div class="about-text">
+  <div class="col-md-12 about-text-right">
+    <h4><a href="{% url 'order-detail' oid=order.id %}">{{ order.id }}</a></h4>
+    <p>Дата заказа: {{ order.order_date }}</p>
+    <p>Сделан пользователем: {{ order.user.first_name }} {{ order.user.last_name }}</p>
+    <p>На сумму: {{ order.amount }}</p>
+  </div>
+</div>
+<div class="clearfix"> </div>

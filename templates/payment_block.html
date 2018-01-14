@@ -1,0 +1,10 @@
+{% load static %}
+<div class="about-text">
+  <div class="col-md-12 about-text-right">
+    <h4><a href="{% url 'payment-detail' pid=payment.id %}">Платеж номер {{ payment.id }}</a></h4>
+    <p>Номер заказа: {{ payment.order_id }}</p>
+    <p>Дата оплаты: {{ payment.payment_date }}</p>
+    <p>Сумма оплаты: {{ payment.amount_paid }}</p>
+  </div>
+</div>
+<div class="clearfix"> </div>

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %} Платеж {{ payment.id }}{% endblock %}
+
+{% block pagecontent %}
+
+<!--banner-->
+	<div class="banner1 about-bnr">
+	</div>
+<!--//banner-->
+<!--courses-->
+<div class="about">
+  <div class="container">
+
+    {% if error_msg %}
+      {{ error_msg }}
+
+    {% else %}
+
+    <h1 class="hdng">Платеж для заказа модельной школы</h1>
+
+    <div class="about-text">
+      <div class="col-md-12 about-text-right">
+        <h4>Платеж номер {{ payment.id }}</h4>
+        <p><a href="{% url 'payment-change' pid=payment.id %}">Изменить данные</a></p>
+		    <p>Номер заказа: {{ payment.order_id }}</p>
+		    <p>Дата оплаты: {{ payment.payment_date }}</p>
+		    <p>Сумма оплаты: {{ payment.amount_paid }}</p>
+		    <p>Метод оплаты (нал./карта): {{ payment.payment_method }}</p>
+		    <p>Номер карты (при оплате картой): {{ payment.account_number }}</p>
+
+      </div>
+    </div>
+    <div class="clearfix"> </div>
+
+    {% endif %}
+
+  </div>
+</div>
+<!--//courses-->
+
+{% endblock %}
