@@ -22,7 +22,7 @@
     <div class="about-text">
       <div class="col-md-12 about-text-right">
         <h4>Платеж номер {{ payment.id }}</h4>
-        <p><a href="{% url 'payment-change' pid=payment.id %}">Изменить данные</a></p>
+        <p><a href="{% url 'payment-change' pid=payment.id %}">Изменить данные о платеже</a></p>
 		    <p>Номер заказа: {{ payment.order_id }}</p>
 		    <p>Дата оплаты: {{ payment.payment_date }}</p>
 		    <p>Сумма оплаты: {{ payment.amount_paid }}</p>

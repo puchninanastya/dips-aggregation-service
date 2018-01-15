@@ -22,7 +22,8 @@
     <div class="about-text">
       <div class="col-md-12 about-text-right">
         <h4>{{ course.name }}</h4>
-        <p><a href="{% url 'course-change' cid=course.id %}">Change course</a></p>
+        <p><a href="{% url 'course-change' cid=course.id %}">Изменить данные о курсе</a></p>
+        <p><a href="#" class="js-delete-course">Удалить этот курс</a></p>
         <p class="courses-date">Дата старта: {{ course.start_date }}</p>
         <p class="courses-date">Дата окончания: {{ course.end_date }}</p>
         <p class="courses-price">Цена курса: {{ course.price }}р</p>
@@ -37,4 +38,25 @@
 </div>
 <!--//courses-->
 
+{% endblock %}
+
+{% block js %}
+<script>
+(function() {
+  //console.log('hello');
+  $('.js-delete-course').on('click', function() {
+    var $this = $(this); // jquery nad objectom click
+    console.log('delete course with cid: ' + {{ course.id }});
+    $.post("{% url 'course-delete' cid=course.id %}", {
+    }).then(function(data, responseText, jqXHR) {
+		  if(jqXHR.status == 204) {
+				alert("Курс был успешно удален!");
+        location.replace("{% url 'courses-list' %}");
+		}}).error(function(data) {
+        alert("Ошибка", "Невозможно соединиться с сервером", "ошибка");
+      });
+    return false;
+  })
+})();
+</script>
 {% endblock %}

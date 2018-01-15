@@ -8,7 +8,7 @@
 	<div class="banner1 about-bnr">
 	</div>
 <!--//banner-->
-<!--courses-->
+<!--students-->
 <div class="about">
   <div class="container">
 
@@ -22,7 +22,7 @@
     <div class="about-text">
       <div class="col-md-12 about-text-right">
         <h4>{{ student.first_name }} {{ student.last_name }}</h4>
-        <p><a href="{% url 'student-change' sid=student.id %}">Изменить данные</a></p>
+        <p><a href="{% url 'student-change' sid=student.id %}">Изменить данные об ученике</a></p>
 				<p>Email: {{ student.email }}
 				<p>Номер телефона: {{ student.profile.phone_number }}</p>
 				<p>Дата рождения: {{ student.profile.birth_date }}</p>
@@ -40,6 +40,6 @@
 
   </div>
 </div>
-<!--//courses-->
+<!--//students-->
 
 {% endblock %}

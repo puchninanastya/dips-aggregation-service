@@ -503,38 +503,65 @@ class GuiChangeCourseView(APIView):
         form = CourseForm(request.data)
         if form.is_valid():
             try:
+                print(1)
                 cd = form.cleaned_data
                 cd['start_date'] = str(cd['start_date'])
                 cd['end_date'] = str(cd['end_date'])
+                print(cd)
                 if cid:
+                    print(2)
                     courseServiceResponse = requests.put(urlCourseService+'courses/'+str(cid)+'/', json = cd)
                 else:
+                    print(3)
                     courseServiceResponse = requests.post(urlCourseService+'courses/', json = cd)
-                if courseServiceResponse.status_code == requests.codes.ok:
+                if (courseServiceResponse.status_code == requests.codes.ok) or \
+                    (courseServiceResponse.status_code == requests.codes.created):
+                    print(4)
                     courseData = courseServiceResponse.json()
                     if courseData['id']:
+                        print('5')
                         return HttpResponseRedirect(reverse('course-detail',
                             kwargs={'cid': courseData['id']}))
                 elif courseServiceResponse.status_code >= 500:
+                    print(6)
                     # TODO: display errors
                     form = CourseForm()
                     #return Response(getServerErrorData(), status=courseServiceResponse.status_code)
                 else:
+                    print(7)
                     # TODO: display errors
                     form = CourseForm()
                     #return Response(courseServiceResponse.json(), status=courseServiceResponse.status_code)
             except requests.exceptions.ConnectionError:
+                print(8)
                 # TODO: display errors
                 form = CourseForm()
                 #return JsonResponse(getUnavailableErrorData(nameCourseService), status=status.HTTP_503_SERVICE_UNAVAILABLE)
             else:
+                print(9)
                 # TODO: display errors
                 form = CourseForm()
                 #return Response(status=status.HTTP_400_BAD_REQUEST)
         else:
+            print(10)
             # TODO: display errors
             form = CourseForm()
         return render(request, 'new_course.html', {'course_form' : form})
+
+class GuiDeleteCourseView(APIView):
+    def post(self, request, cid):
+        try:
+            courseServiceResponse = requests.delete(urlCourseService+'courses/'+str(cid)+'/')
+            if courseServiceResponse.status_code == 204:
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            elif courseServiceResponse.status_code >= 500:
+                return Response(getServerErrorData(), status=courseServiceResponse.status_code)
+            else:
+                return Response(courseServiceResponse.json(), courseServiceResponse.status_code)
+        except requests.exceptions.ConnectionError:
+            return JsonResponse(getUnavailableErrorData(nameCourseService), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 class GuiStudentListView(APIView):
     def get(self, request):
@@ -816,18 +843,39 @@ class GuiChangePaymentView(APIView):
     def post(self, request, pid=None):
         form = PaymentForm(request.data)
         if form.is_valid():
+            billingServiceSuccess = False
             try:
                 cd = form.cleaned_data
-                cd['payment_date'] = str(cd['payment_date'])
+                if cd['payment_date'] is not None:
+                    cd['payment_date'] = str(cd['payment_date'])
+                else:
+                    cd.pop('payment_date')
+                print(cd)
                 if pid:
                     billingServiceResponse = requests.put(urlBillingService+'payments/'+str(pid)+'/', json = cd)
                 else:
                     billingServiceResponse = requests.post(urlBillingService+'payments/', json = cd)
-                if billingServiceResponse.status_code == requests.codes.ok:
+                if (billingServiceResponse.status_code == requests.codes.ok) or \
+                    (billingServiceResponse.status_code == requests.codes.created):
+                    print('billing success')
+                    billingServiceSuccess = True
+                    # change order payment status
                     paymentData = billingServiceResponse.json()
-                    if paymentData['id']:
-                        return HttpResponseRedirect(reverse('payment-detail',
-                            kwargs={'pid': paymentData['id']}))
+                    orderId = paymentData['order_id']
+                    amountPaid = paymentData['amount_paid']
+                    if (orderId is not None) and (amountPaid is not None):
+                        requestStatusData = { 'is_paid' : True }
+                        orderServiceResponse = requests.patch(urlOrderService+'orders/'+str(orderId)+'/',
+                            json = requestStatusData, params = {'paid' : amountPaid})
+                        if orderServiceResponse.status_code == requests.codes.ok:
+                            #TODO: check payment status
+                            return HttpResponseRedirect(reverse('payment-detail',
+                                kwargs={'pid': paymentData['id']}))
+                        else:
+                            form = PaymentForm()
+                            # TODO: ROLLBACK
+                            # TODO: display errors
+                            #return Response(orderServiceResponse.json(), status=orderServiceResponse.status_code)
                 elif billingServiceResponse.status_code >= 500:
                     # TODO: display errors
                     form = PaymentForm()

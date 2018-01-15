@@ -1,5 +1,6 @@
 from django import forms
-from django.core.validators import RegexValidator
+from django.core.validators import RegexValidator, validate_comma_separated_integer_list
+from datetime import datetime, date
 
 class CourseForm(forms.Form):
     name = forms.CharField(
@@ -31,7 +32,7 @@ class CourseForm(forms.Form):
 
     def clean_start_date(self):
         start_date = self.cleaned_data['start_date']
-        if start_date < datetime.date.today():
+        if start_date < date.today():
             raise ValidationError(_('Invalid date - new course starts in past'))
         return start_date
 
@@ -140,6 +141,12 @@ class OrderForm(forms.Form):
             attrs={
             'placeholder':'Set datetime of order or null for autoset'
             }))
+    courses = forms.CharField(
+        validators=[validate_comma_separated_integer_list],
+        widget=forms.TextInput(
+            attrs={
+            'placeholder':'Comma separated courses ids'
+            }))
 
 class PaymentForm(forms.Form):
     order_id = forms.IntegerField(
@@ -149,6 +156,7 @@ class PaymentForm(forms.Form):
             'placeholder':'Order id'
             }))
     payment_date = forms.DateTimeField(
+        required=False,
         widget=forms.DateTimeInput(
             attrs={
             'placeholder':'Set date of payment or null for autoset'

@@ -8,7 +8,7 @@
 	<div class="banner1 about-bnr">
 	</div>
 <!--//banner-->
-<!--courses-->
+<!--orders-->
 <div class="about">
   <div class="container">
 
@@ -22,7 +22,7 @@
     <div class="about-text">
       <div class="col-md-12 about-text-right">
         <h4>{{ order.id }}</h4>
-        <p><a href="{% url 'order-change' oid=order.id %}">Изменить данные</a></p>
+        <p><a href="{% url 'order-change' oid=order.id %}">Изменить данные о заказе</a></p>
 				<p>User: {{ order.user.id }} {{ order.user.first_name }} {{ order.user.last_name }}
 				<p>Дата: {{ order.order_date }}</p>
 				<p>Amount: {{ order.amount }}</p>
@@ -40,6 +40,6 @@
 
   </div>
 </div>
-<!--//courses-->
+<!--//orders-->
 
 {% endblock %}

@@ -4,3 +4,4 @@ aggregation_service/migrations/__pycache__/
 aggregation_service/tests/__pycache__/
 htmlcov/
 .coverage
+node-v9.4.0/
