@@ -23,6 +23,7 @@
       <div class="col-md-12 about-text-right">
         <h4>Платеж номер {{ payment.id }}</h4>
         <p><a href="{% url 'payment-change' pid=payment.id %}">Изменить данные о платеже</a></p>
+				<p><a href="#" class="js-delete-payment">Удалить этот платеж</a></p>
 		    <p>Номер заказа: {{ payment.order_id }}</p>
 		    <p>Дата оплаты: {{ payment.payment_date }}</p>
 		    <p>Сумма оплаты: {{ payment.amount_paid }}</p>
@@ -39,4 +40,25 @@
 </div>
 <!--//courses-->
 
+{% endblock %}
+
+{% block js %}
+<script>
+(function() {
+  //console.log('hello');
+  $('.js-delete-payment').on('click', function() {
+    var $this = $(this); // jquery nad objectom click
+    console.log('delete payment with pid: ' + {{ payment.id }});
+    $.post("{% url 'payment-delete' pid=payment.id %}", {
+    }).then(function(data, responseText, jqXHR) {
+		  if(jqXHR.status == 204) {
+				alert("Платеж был успешно удален!");
+        location.replace("{% url 'payments-list' %}");
+		}}).error(function(data) {
+        alert("Ошибка", "Невозможно соединиться с сервером", "ошибка");
+      });
+    return false;
+  })
+})();
+</script>
 {% endblock %}

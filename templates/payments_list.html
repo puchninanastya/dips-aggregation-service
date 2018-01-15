@@ -12,6 +12,8 @@
 <div class="about">
   <div class="container">
     <h1 class="hdng">Платежи заказов модельной школы</h1>
+		<br> <!-- TODO: menu only for staff users -->
+		<p><a href="{% url 'payment-new' %}">Добавить новый платеж </a></p>
 
 				{% if error_msg %}
 					{{ error_msg }}

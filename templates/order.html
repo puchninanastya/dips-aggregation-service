@@ -23,6 +23,7 @@
       <div class="col-md-12 about-text-right">
         <h4>{{ order.id }}</h4>
         <p><a href="{% url 'order-change' oid=order.id %}">Изменить данные о заказе</a></p>
+				<p><a href="#" class="js-delete-order">Удалить этот заказ</a></p>
 				<p>User: {{ order.user.id }} {{ order.user.first_name }} {{ order.user.last_name }}
 				<p>Дата: {{ order.order_date }}</p>
 				<p>Amount: {{ order.amount }}</p>
@@ -42,4 +43,25 @@
 </div>
 <!--//orders-->
 
+{% endblock %}
+
+{% block js %}
+<script>
+(function() {
+  //console.log('hello');
+  $('.js-delete-order').on('click', function() {
+    var $this = $(this); // jquery nad objectom click
+    console.log('delete order with oid: ' + {{ order.id }});
+    $.post("{% url 'order-delete' oid=order.id %}", {
+    }).then(function(data, responseText, jqXHR) {
+		  if(jqXHR.status == 204) {
+				alert("Заказ был успешно удален!");
+        location.replace("{% url 'orders-list' %}");
+		}}).error(function(data) {
+        alert("Ошибка", "Невозможно соединиться с сервером", "ошибка");
+      });
+    return false;
+  })
+})();
+</script>
 {% endblock %}

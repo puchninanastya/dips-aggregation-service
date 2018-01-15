@@ -694,6 +694,23 @@ class GuiChangeStudentView(APIView):
                 #return Response(status=status.HTTP_400_BAD_REQUEST)
         return render(request, 'new_student.html', {'student_form' : form})
 
+class GuiDeleteStudentView(APIView):
+    def post(self, request, sid):
+        try:
+            userServiceResponse = requests.delete(urlUserService+'users/'+str(sid)+'/')
+            if userServiceResponse.status_code == requests.codes.no_content:
+                # delete user orders
+                #deleteUserOrders.delay(id)
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            elif userServiceResponse.status_code >= 500:
+                return Response(getServerErrorData(), status=userServiceResponse.status_code)
+            else:
+                return Response(userServiceResponse.json(), status=userServiceResponse.status_code)
+        except requests.exceptions.ConnectionError:
+            return JsonResponse(getUnavailableErrorData(nameUserService), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
 class GuiOrderListView(APIView):
     def get(self, request):
         try:
@@ -761,6 +778,21 @@ class GuiOrderDetailView(APIView):
         except requests.exceptions.ConnectionError:
             return render(request, 'order.html',
                 {'error_msg': getUnavailableErrorData(nameOrderService)['error']})
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+class GuiDeleteOrderView(APIView):
+    def post(self, request, oid):
+        try:
+            orderServiceResponse = requests.delete(urlOrderService+'orders/'+str(oid)+'/')
+            if orderServiceResponse.status_code == requests.codes.no_content:
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            elif orderServiceResponse.status_code >= 500:
+                return Response(getServerErrorData(), status=orderServiceResponse.status_code)
+            else:
+                return Response(orderServiceResponse.json(), status=orderServiceResponse.status_code)
+        except requests.exceptions.ConnectionError:
+            return JsonResponse(getUnavailableErrorData(nameOrderService), status=status.HTTP_503_SERVICE_UNAVAILABLE)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
@@ -893,3 +925,18 @@ class GuiChangePaymentView(APIView):
                 form = PaymentForm()
                 #return Response(status=status.HTTP_400_BAD_REQUEST)
         return render(request, 'new_payment.html', {'payment_form' : form})
+
+class GuiDeletePaymentView(APIView):
+    def post(self, request, pid):
+        try:
+            billingServiceResponse = requests.delete(urlBillingService+'payments/'+str(pid)+'/')
+            if billingServiceResponse.status_code == 204:
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            elif billingServiceResponse.status_code >= 500:
+                return Response(getServerErrorData(), status=billingServiceResponse.status_code)
+            else:
+                return Response(billingServiceResponse.json(), status=billingServiceResponse.status_code)
+        except requests.exceptions.ConnectionError:
+            return JsonResponse(getUnavailableErrorData(nameBillingService), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)

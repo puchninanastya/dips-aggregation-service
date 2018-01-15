@@ -11,7 +11,9 @@
 <!--orders-->
 <div class="about">
   <div class="container">
-    <h1 class="hdng">Курсы модельной школы</h1>
+    <h1 class="hdng">Заказы учеников модельной школы</h1>
+		<br> <!-- TODO: menu only for staff users -->
+		<p><a href="{% url 'order-new' %}">Добавить новый заказ </a></p>
 
 				{% if error_msg %}
 					{{ error_msg }}

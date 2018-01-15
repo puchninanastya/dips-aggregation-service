@@ -23,6 +23,7 @@
       <div class="col-md-12 about-text-right">
         <h4>{{ student.first_name }} {{ student.last_name }}</h4>
         <p><a href="{% url 'student-change' sid=student.id %}">Изменить данные об ученике</a></p>
+				<p><a href="#" class="js-delete-student">Удалить этого ученика</a></p>
 				<p>Email: {{ student.email }}
 				<p>Номер телефона: {{ student.profile.phone_number }}</p>
 				<p>Дата рождения: {{ student.profile.birth_date }}</p>
@@ -42,4 +43,25 @@
 </div>
 <!--//students-->
 
+{% endblock %}
+
+{% block js %}
+<script>
+(function() {
+  //console.log('hello');
+  $('.js-delete-student').on('click', function() {
+    var $this = $(this); // jquery nad objectom click
+    console.log('delete student with sid: ' + {{ student.id }});
+    $.post("{% url 'student-delete' sid=student.id %}", {
+    }).then(function(data, responseText, jqXHR) {
+		  if(jqXHR.status == 204) {
+				alert("Студент был успешно удален!");
+        location.replace("{% url 'students-list' %}");
+		}}).error(function(data) {
+        alert("Ошибка", "Невозможно соединиться с сервером", "ошибка");
+      });
+    return false;
+  })
+})();
+</script>
 {% endblock %}

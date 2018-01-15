@@ -23,16 +23,19 @@ urlpatterns = [
 
      url(r'^students/new/$', views.GuiChangeStudentView.as_view(), name='student-new'),
      url(r'^students/(?P<sid>\w+)/change/$', views.GuiChangeStudentView.as_view(), name='student-change'),
+     url(r'^students/(?P<sid>\w+)/delete/$', views.GuiDeleteStudentView.as_view(), name='student-delete'),
      url(r'^students/(?P<sid>\w+)/', views.GuiStudentDetailView.as_view(), name='student-detail'),
      url(r'^students/$', views.GuiStudentListView.as_view(), name='students-list'),
 
      url(r'^orders/new/', views.GuiChangeStudentView.as_view(), name='order-new'),
      url(r'^orders/(?P<oid>\w+)/change/', views.GuiChangeStudentView.as_view(), name='order-change'),
+     url(r'^orders/(?P<oid>\w+)/delete/$', views.GuiDeleteOrderView.as_view(), name='order-delete'),
      url(r'^orders/(?P<oid>\w+)/', views.GuiOrderDetailView.as_view(), name='order-detail'),
      url(r'^orders/$', views.GuiOrderListView.as_view(), name='orders-list'),
 
      url(r'^payments/new/$', views.GuiChangePaymentView.as_view(), name='payment-new'),
      url(r'^payments/(?P<pid>\w+)/change/$', views.GuiChangePaymentView.as_view(), name='payment-change'),
+     url(r'^payments/(?P<pid>\w+)/delete/$', views.GuiDeletePaymentView.as_view(), name='payment-delete'),
      url(r'^payments/(?P<pid>\w+)/', views.GuiPaymentDetailView.as_view(), name='payment-detail'),
      url(r'^payments/$', views.GuiPaymentListView.as_view(), name='payments-list'),
 

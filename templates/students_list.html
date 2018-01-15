@@ -13,10 +13,13 @@
 		<div class="container">
 			<h1 class="hdng">Наши ученики</h1>
 			<h2 class="hdng-two">Наша модельная школа имеет большое сообщество единомышленников, среди них:</h2>
+			<br> <!-- TODO: menu only for staff users -->
+			<p><a href="{% url 'student-new' %}">Добавить нового ученика </a></p>
 			<br>
-			<p><a href="{% url 'orders-list' %}">Просмотреть заказы всех пользователей</a></p>
+			<p><a href="{% url 'orders-list' %}">Просмотреть заказы всех учеников</a></p>
 			<br>
-			<p><a href="{% url 'payments-list' %}">Просмотреть платежи всех пользователей</a></p>
+			<p><a href="{% url 'payments-list' %}">Просмотреть платежи всех учеников</a></p>
+
 			<div class="news-info">
 
 				{% if error_msg %}
