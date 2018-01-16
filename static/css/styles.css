@@ -38,9 +38,16 @@ ul,label{
 	margin:0;
 	padding:0;
 }
+
+/* Color of invalid field */
+.has-error ul {
+  color: red;
+}
+
 body a:hover{
 	text-decoration:none;
 }
+
 /*--header--*/
 .header {
     background: none;

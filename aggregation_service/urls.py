@@ -27,8 +27,8 @@ urlpatterns = [
      url(r'^students/(?P<sid>\w+)/', views.GuiStudentDetailView.as_view(), name='student-detail'),
      url(r'^students/$', views.GuiStudentListView.as_view(), name='students-list'),
 
-     url(r'^orders/new/', views.GuiChangeStudentView.as_view(), name='order-new'),
-     url(r'^orders/(?P<oid>\w+)/change/', views.GuiChangeStudentView.as_view(), name='order-change'),
+     url(r'^orders/new/', views.GuiChangeOrderView.as_view(), name='order-new'),
+     url(r'^orders/(?P<oid>\w+)/change/', views.GuiChangeOrderView.as_view(), name='order-change'),
      url(r'^orders/(?P<oid>\w+)/delete/$', views.GuiDeleteOrderView.as_view(), name='order-delete'),
      url(r'^orders/(?P<oid>\w+)/', views.GuiOrderDetailView.as_view(), name='order-detail'),
      url(r'^orders/$', views.GuiOrderListView.as_view(), name='orders-list'),

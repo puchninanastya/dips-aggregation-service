@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from django.urls import reverse
+from django.core.exceptions import ValidationError
 
 from rest_framework.views import APIView
 from rest_framework.request import Request
@@ -12,7 +13,7 @@ from datetime import datetime
 import requests
 
 from .tasks import deleteUserOrders
-from .forms import CourseForm, StudentForm, PaymentForm
+from .forms import CourseForm, StudentForm, OrderForm, PaymentForm
 
 """ Services settings """
 nameUserService = 'User service'
@@ -51,6 +52,15 @@ def getObjectFromService(url, id):
                 return response.json()
     except:
         return None
+
+def getResponseErrorsForForm(form, response):
+    serviceErrors = response.json()['error']
+    if isinstance(serviceErrors, dict):
+        for errorDataKey in serviceErrors:
+            form.add_error(errorDataKey, serviceErrors[errorDataKey])
+    else:
+        form.add_error(None, serviceErrors)
+    return form
 
 def getUnavailableErrorData(serviceName):
     return {'error' : '{} is unavailable.'.format(serviceName)}
@@ -433,6 +443,9 @@ class GuiCourseListView(APIView):
                 if responseData['results']:
                     return render(request, 'courses_list.html',
                         {'courses': responseData['results'],})
+                else:
+                    return render(request, 'courses_list.html',
+                        {'courses': None,})
             elif courseServiceResponse.status_code >= 500:
                 return render(request, 'courses_list.html',
                     {'error_msg': getServerErrorData()['error'],})
@@ -445,7 +458,8 @@ class GuiCourseListView(APIView):
             return render(request, 'courses_list.html',
                 {'error_msg': getUnavailableErrorData(nameCourseService)['error']})
         else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return render(request, 'courses_list.html',
+                {'error_msg': getServerErrorData()['error']})
 
 class GuiCourseDetailView(APIView):
     def get(self, request, cid):
@@ -465,7 +479,8 @@ class GuiCourseDetailView(APIView):
             return render(request, 'course.html',
                 {'error_msg': getUnavailableErrorData(nameCourseService)['error']})
         else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return render(request, 'course.html',
+                {'error_msg': getServerErrorData()['error']})
 
 class GuiChangeCourseView(APIView):
     def get(self, request, cid=None):
@@ -479,21 +494,16 @@ class GuiChangeCourseView(APIView):
                             {'course_form' : CourseForm(courseData),
                             'course_operation': 'Изменить данные о курсе'})
                 elif courseServiceResponse.status_code >= 500:
-                    # TODO: display errors
-                    form = CourseForm()
-                    #return Response(getServerErrorData(), status=courseServiceResponse.status_code)
+                    return render(request, 'course.html', {'error_msg': getServerErrorData()['error'],})
                 else:
-                    # TODO: display errors
-                    form = CourseForm()
-                    #return Response(courseServiceResponse.json(), status=courseServiceResponse.status_code)
+                    return render(request, 'new_course.html',
+                        {'error_msg': courseServiceResponse.json()['error']})
             except requests.exceptions.ConnectionError:
-                # TODO: display errors
-                form = CourseForm()
-                #return JsonResponse(getUnavailableErrorData(nameCourseService), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+                return render(request, 'new_course.html',
+                    {'error_msg': getUnavailableErrorData(nameCourseService)['error']})
             else:
-                # TODO: display errors
-                form = CourseForm()
-                #return Response(status=status.HTTP_400_BAD_REQUEST)
+                return render(request, 'new_course.html',
+                    {'error_msg': getServerErrorData()['error']})
         else:
             return render(request, 'new_course.html',
                 {'course_form' : CourseForm(),
@@ -503,50 +513,34 @@ class GuiChangeCourseView(APIView):
         form = CourseForm(request.data)
         if form.is_valid():
             try:
-                print(1)
                 cd = form.cleaned_data
                 cd['start_date'] = str(cd['start_date'])
                 cd['end_date'] = str(cd['end_date'])
-                print(cd)
                 if cid:
-                    print(2)
                     courseServiceResponse = requests.put(urlCourseService+'courses/'+str(cid)+'/', json = cd)
                 else:
-                    print(3)
                     courseServiceResponse = requests.post(urlCourseService+'courses/', json = cd)
                 if (courseServiceResponse.status_code == requests.codes.ok) or \
                     (courseServiceResponse.status_code == requests.codes.created):
-                    print(4)
                     courseData = courseServiceResponse.json()
                     if courseData['id']:
-                        print('5')
                         return HttpResponseRedirect(reverse('course-detail',
                             kwargs={'cid': courseData['id']}))
                 elif courseServiceResponse.status_code >= 500:
-                    print(6)
-                    # TODO: display errors
-                    form = CourseForm()
-                    #return Response(getServerErrorData(), status=courseServiceResponse.status_code)
+                    form.add_error(None, getServerErrorData())
+                    return render(request, 'new_course.html', {'course_form' : form})
                 else:
-                    print(7)
-                    # TODO: display errors
-                    form = CourseForm()
-                    #return Response(courseServiceResponse.json(), status=courseServiceResponse.status_code)
+                    form = getResponseErrorsForForm(form, courseServiceResponse)
+                    return render(request, 'new_course.html', {'course_form' : form})
             except requests.exceptions.ConnectionError:
-                print(8)
-                # TODO: display errors
-                form = CourseForm()
-                #return JsonResponse(getUnavailableErrorData(nameCourseService), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+                form.add_error(None, getUnavailableErrorData(nameCourseService)['error'])
+                return render(request, 'new_course.html', {'course_form' : form})
             else:
-                print(9)
-                # TODO: display errors
-                form = CourseForm()
-                #return Response(status=status.HTTP_400_BAD_REQUEST)
+                return render(request, 'new_course.html',
+                    {'error_msg': getServerErrorData()['error']})
         else:
-            print(10)
-            # TODO: display errors
-            form = CourseForm()
-        return render(request, 'new_course.html', {'course_form' : form})
+            print('not valid')
+            return render(request, 'new_course.html', {'course_form' : form})
 
 class GuiDeleteCourseView(APIView):
     def post(self, request, cid):
@@ -572,6 +566,9 @@ class GuiStudentListView(APIView):
                 if responseData['results']:
                     return render(request, 'students_list.html',
                         {'students': responseData['results'],})
+                else:
+                    return render(request, 'students_list.html',
+                        {'students': None,})
             elif userServiceResponse.status_code >= 500:
                 return render(request, 'students_list.html',
                     {'error_msg': getServerErrorData()['error'],})
@@ -584,7 +581,8 @@ class GuiStudentListView(APIView):
             return render(request, 'students_list.html',
                 {'error_msg': getUnavailableErrorData(nameUserService)['error']})
         else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return render(request, 'students_list.html',
+                {'error_msg': getServerErrorData()['error']})
 
 class GuiStudentDetailView(APIView):
     def get(self, request, sid):
@@ -604,7 +602,8 @@ class GuiStudentDetailView(APIView):
             return render(request, 'student.html',
                 {'error_msg': getUnavailableErrorData(nameUserService)['error']})
         else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return render(request, 'student.html',
+                {'error_msg': getServerErrorData()['error']})
 
 class GuiChangeStudentView(APIView):
     def get(self, request, sid=None):
@@ -614,7 +613,7 @@ class GuiChangeStudentView(APIView):
                 if userServiceResponse.status_code == requests.codes.ok:
                     studentData = userServiceResponse.json()
                     if studentData['id']:
-                        #TODO: change profile data
+                        #TODO: change profile data (todo just copy list)
                         studentData['phone_number'] = studentData['profile'].pop('phone_number', None)
                         studentData['birth_date'] = studentData['profile'].pop('birth_date', None)
                         studentData['height'] = studentData['profile'].pop('height', None)
@@ -628,21 +627,16 @@ class GuiChangeStudentView(APIView):
                             {'student_form' : StudentForm(studentData),
                             'student_operation': 'Изменить данные о студенте'})
                 elif userServiceResponse.status_code >= 500:
-                    # TODO: display errors
-                    form = StudentForm()
-                    #return Response(getServerErrorData(), status=courseServiceResponse.status_code)
+                    return render(request, 'new_student.html', {'error_msg': getServerErrorData()['error'],})
                 else:
-                    # TODO: display errors
-                    form = StudentForm()
-                    #return Response(courseServiceResponse.json(), status=courseServiceResponse.status_code)
+                    return render(request, 'new_student.html',
+                        {'error_msg': userServiceResponse.json()['error']})
             except requests.exceptions.ConnectionError:
-                # TODO: display errors
-                form = StudentForm()
-                #return JsonResponse(getUnavailableErrorData(nameCourseService), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+                return render(request, 'new_student.html',
+                    {'error_msg': getUnavailableErrorData(nameUserService)['error']})
             else:
-                # TODO: display errors
-                form = StudentForm()
-                #return Response(status=status.HTTP_400_BAD_REQUEST)
+                return render(request, 'new_student.html',
+                    {'error_msg': getServerErrorData()['error']})
         else:
             return render(request, 'new_student.html',
                 {'student_form' : StudentForm(),
@@ -652,8 +646,8 @@ class GuiChangeStudentView(APIView):
         form = StudentForm(request.data)
         if form.is_valid():
             try:
-                print(10001)
                 cd = form.cleaned_data
+                print('here try to edit student')
                 cd['profile'] = {}
                 cd['profile']['phone_number'] = cd.pop('phone_number', None)
                 cd['profile']['birth_date'] = str(cd.pop('birth_date', None))
@@ -670,29 +664,27 @@ class GuiChangeStudentView(APIView):
                 else:
                     userServiceResponse = requests.post(urlUserService+'users/', json = cd)
 
-                if userServiceResponse.status_code == requests.codes.ok:
+                if (userServiceResponse.status_code == requests.codes.ok) or \
+                    (userServiceResponse.status_code == requests.codes.created):
                     studentData = userServiceResponse.json()
                     if studentData['id']:
                         return HttpResponseRedirect(reverse('student-detail',
                             kwargs={'sid': studentData['id']}))
                 elif userServiceResponse.status_code >= 500:
-                    # TODO: display errors
-                    form = StudentForm()
-                    #return Response(getServerErrorData(), status=courseServiceResponse.status_code)
+                    form.add_error(None, getServerErrorData())
+                    return render(request, 'new_student.html', {'student_form' : form})
                 else:
-                    # TODO: display errors
-                    form = StudentForm()
-                    #return Response(courseServiceResponse.json(), status=courseServiceResponse.status_code)
+                    form = getResponseErrorsForForm(form, userServiceResponse)
+                    return render(request, 'new_student.html', {'student_form' : form})
             except requests.exceptions.ConnectionError:
-            #    form.add_error(stgetUnavailableErrorData(nameUserService))
-                form = StudentForm()
-                #return JsonResponse(getUnavailableErrorData(nameCourseService), status=status.HTTP_503_SERVICE_UNAVAILABLE)
-            else:
-                print(200)
-                #form.add_error(None, "Something is wrong")
+                form.add_error(None, getUnavailableErrorData(nameUserService)['error'])
                 return render(request, 'new_student.html', {'student_form' : form})
-                #return Response(status=status.HTTP_400_BAD_REQUEST)
-        return render(request, 'new_student.html', {'student_form' : form})
+            else:
+                return render(request, 'new_student.html',
+                    {'error_msg': getServerErrorData()['error']})
+        else:
+            print('not valid')
+            return render(request, 'new_student.html', {'student_form' : form})
 
 class GuiDeleteStudentView(APIView):
     def post(self, request, sid):
@@ -743,10 +735,9 @@ class GuiOrderListView(APIView):
                     else: # TODO: check for needs
                         wasNoneCourseInfo = False
 
-                    print(responseData)
-                    return render(request, 'orders_list.html',
+                print(responseData)
+                return render(request, 'orders_list.html',
                         {'orders': responseData['results'],})
-
             elif orderServiceResponse.status_code >= 500:
                 return render(request, 'orders_list.html',
                     {'error_msg': getServerErrorData()['error'],})
@@ -768,6 +759,29 @@ class GuiOrderDetailView(APIView):
             if orderServiceResponse.status_code == requests.codes.ok:
                 orderData = orderServiceResponse.json()
                 if orderData['id']:
+                    print(orderData)
+                    userId = orderData['user']
+                    userInfo = getObjectFromService(urlUserService+'users/', userId)
+                    if userInfo:
+                        orderData['user'] = userInfo
+                    # get courses info
+                    courses = orderData['courses']
+                    coursesResult = []
+                    # Only if all information is available
+                    wasNoneCourseInfo = False
+                    for course in orderData['courses']:
+                        if 'course_id' in course:
+                            courseId = course['course_id']
+                            courseInfo = getObjectFromService(urlCourseService+'courses/', courseId)
+                            if courseInfo:
+                                coursesResult.append(courseInfo)
+                            else:
+                                wasNoneCourseInfo = True
+                    if wasNoneCourseInfo is False:
+                        orderData['courses'] = coursesResult
+                    else: # TODO: check for needs
+                        wasNoneCourseInfo = False
+                    print(orderData)
                     return render(request, 'order.html', {'order': orderData,})
             elif orderServiceResponse.status_code >= 500:
                 return render(request, 'order.html', {'error_msg': getServerErrorData()['error'],})
@@ -779,7 +793,85 @@ class GuiOrderDetailView(APIView):
             return render(request, 'order.html',
                 {'error_msg': getUnavailableErrorData(nameOrderService)['error']})
         else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return render(request, 'order.html',
+                {'error_msg': getServerErrorData()['error']})
+
+class GuiChangeOrderView(APIView):
+    def get(self, request, oid=None):
+        if oid:
+            try:
+                orderServiceResponse = requests.get(urlOrderService+'orders/'+str(oid)+'/')
+                if orderServiceResponse.status_code == requests.codes.ok:
+                    orderData = orderServiceResponse.json()
+                    if orderData['id']:
+                        orderData['order_date'] = datetime.strptime(orderData['order_date'], "%Y-%m-%d %H:%M:%S")
+                        coursesCommaString = ''
+                        for course in orderData['courses']:
+                            if coursesCommaString:
+                                coursesCommaString = coursesCommaString + ',' + str(course['course_id'])
+                            else:
+                                coursesCommaString = str(course['course_id'])
+                        #TODO: check is paid?
+                        orderData['courses'] = coursesCommaString
+                        return render(request, 'new_order.html',
+                            {'order_form' : OrderForm(orderData),
+                            'order_operation': 'Изменить данные о order'})
+                elif orderServiceResponse.status_code >= 500:
+                    return render(request, 'course.html', {'error_msg': getServerErrorData()['error'],})
+                else:
+                    return render(request, 'course.html',
+                        {'error_msg': courseServiceResponse.json()['error']})
+            except requests.exceptions.ConnectionError:
+                return render(request, 'new_order.html',
+                    {'error_msg': getUnavailableErrorData(nameOrderService)['error']})
+            else:
+                return render(request, 'new_order.html',
+                    {'error_msg': getServerErrorData()['error']})
+        else:
+            return render(request, 'new_order.html',
+                {'order_form' : OrderForm(),
+                'order_operation': 'Добавить новый order'})
+
+    def post(self, request, oid=None):
+        form = OrderForm(request.data)
+        if form.is_valid():
+            try:
+                cd = form.cleaned_data
+                coursesCommaList = cd.pop('courses', None)
+                if coursesCommaList:
+                    coursesList = [{'course_id': int(x),} for x in coursesCommaList.split(',')]
+                    cd['courses'] = coursesList
+                if cd['order_date'] is not None:
+                    cd['order_date'] = str(cd['order_date'])
+                else:
+                    cd.pop('order_date')
+                print(cd)
+                if oid:
+                    orderServiceResponse = requests.put(urlOrderService+'orders/'+str(oid)+'/', json = cd)
+                else:
+                    orderServiceResponse = requests.post(urlOrderService+'orders/', json = cd)
+                if (orderServiceResponse.status_code == requests.codes.ok) or \
+                    (orderServiceResponse.status_code == requests.codes.created):
+                    orderData = orderServiceResponse.json()
+                    if orderData['id']:
+                        return HttpResponseRedirect(reverse('order-detail',
+                            kwargs={'oid': orderData['id']}))
+                elif orderServiceResponse.status_code >= 500:
+                    form.add_error(None, getServerErrorData())
+                    return render(request, 'new_order.html', {'order_form' : form})
+                else:
+                    print(orderServiceResponse.json())
+                    form = getResponseErrorsForForm(form, orderServiceResponse)
+                    return render(request, 'new_order.html', {'order_form' : form})
+            except requests.exceptions.ConnectionError:
+                form.add_error(None, getUnavailableErrorData(nameOrderService)['error'])
+                return render(request, 'new_order.html', {'order_form' : form})
+            else:
+                return render(request, 'new_order.html',
+                    {'error_msg': getServerErrorData()['error']})
+        else:
+            print('not valid')
+            return render(request, 'new_order.html', {'order_form' : form})
 
 class GuiDeleteOrderView(APIView):
     def post(self, request, oid):
@@ -817,7 +909,8 @@ class GuiPaymentListView(APIView):
             return render(request, 'payments_list.html',
                 {'error_msg': getUnavailableErrorData(nameBillingService)['error']})
         else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return render(request, 'payments_list.html',
+                {'error_msg': getServerErrorData()['error']})
 
 class GuiPaymentDetailView(APIView):
     def get(self, request, pid):
@@ -837,7 +930,8 @@ class GuiPaymentDetailView(APIView):
             return render(request, 'payment.html',
                 {'error_msg': getUnavailableErrorData(nameBillingService)['error']})
         else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return render(request, 'payment.html',
+                {'error_msg': getServerErrorData()['error']})
 
 class GuiChangePaymentView(APIView):
     def get(self, request, pid=None):
@@ -856,17 +950,14 @@ class GuiChangePaymentView(APIView):
                     form = PaymentForm()
                     #return Response(getServerErrorData(), status=courseServiceResponse.status_code)
                 else:
-                    # TODO: display errors
-                    form = PaymentForm()
-                    #return Response(courseServiceResponse.json(), status=courseServiceResponse.status_code)
+                    return render(request, 'new_payment.html',
+                        {'error_msg': billingServiceResponse.json()['error']})
             except requests.exceptions.ConnectionError:
-                # TODO: display errors
-                form = PaymentForm()
-                #return JsonResponse(getUnavailableErrorData(nameCourseService), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+                return render(request, 'new_payment.html',
+                    {'error_msg': getUnavailableErrorData(nameBillingService)['error']})
             else:
-                # TODO: display errors
-                form = PaymentForm()
-                #return Response(status=status.HTTP_400_BAD_REQUEST)
+                return render(request, 'new_payment.html',
+                    {'error_msg': getServerErrorData()['error']})
         else:
             return render(request, 'new_payment.html',
                 {'payment_form' : PaymentForm(),
@@ -874,8 +965,8 @@ class GuiChangePaymentView(APIView):
 
     def post(self, request, pid=None):
         form = PaymentForm(request.data)
+        billingServiceSuccess = Falses
         if form.is_valid():
-            billingServiceSuccess = False
             try:
                 cd = form.cleaned_data
                 if cd['payment_date'] is not None:
@@ -909,21 +1000,43 @@ class GuiChangePaymentView(APIView):
                             # TODO: display errors
                             #return Response(orderServiceResponse.json(), status=orderServiceResponse.status_code)
                 elif billingServiceResponse.status_code >= 500:
-                    # TODO: display errors
-                    form = PaymentForm()
-                    #return Response(getServerErrorData(), status=courseServiceResponse.status_code)
+                    form.add_error(None, getServerErrorData())
+                    return render(request, 'new_payment.html', {'payment_form' : form})
                 else:
-                    # TODO: display errors
-                    form = PaymentForm()
-                    #return Response(courseServiceResponse.json(), status=courseServiceResponse.status_code)
+                    # Rollback: delete created payment in billing service
+                    paymentId = billingServiceResponse.json()['id']
+                    if paymentId is None:
+                        form.add_error(None, getServerErrorData()['error'])
+                        return render(request, 'new_payment.html', {'payment_form' : form})
+                    rollbackResponse = requests.delete(urlBillingService+'payments/'+str(paymentId)+'/')
+                    if rollbackResponse.status_code == requests.codes.no_content:
+                        form.add_error(None, getUnavailableErrorData("Service")['error'])
+                        return render(request, 'new_payment.html', {'payment_form' : form})
+                    # TODO: billing service can become unavailable, need to process this case
+                    form.add_error(None, getServerErrorData(nameBillingService)['error'])
+                    return render(request, 'new_payment.html', {'payment_form' : form})
             except requests.exceptions.ConnectionError:
-                # TODO: display errors
-                form = PaymentForm()
-                #return JsonResponse(getUnavailableErrorData(nameCourseService), status=status.HTTP_503_SERVICE_UNAVAILABLE)
+                # rollback: delete created payment
+                if not billingServiceSuccess:
+                    form.add_error(None, getUnavailableErrorData(nameBillingService)['error'])
+                    return render(request, 'new_payment.html', {'payment_form' : form})
+                else:
+                    # Rollback: delete created payment in billing service
+                    paymentId = billingServiceResponse.json()['id']
+                    if paymentId is None:
+                        form.add_error(None, getServerErrorData()['error'])
+                        return render(request, 'new_payment.html', {'payment_form' : form})
+                    rollbackResponse = requests.delete(urlBillingService+'payments/'+str(paymentId)+'/')
+                    if rollbackResponse.status_code == requests.codes.no_content:
+                        form.add_error(None, getUnavailableErrorData("Service")['error'])
+                        return render(request, 'new_payment.html', {'payment_form' : form})
+                    # TODO: billing service can become unavailable, need to process this case
+                    form.add_error(None, getServerErrorData(nameBillingService)['error'])
+                    return render(request, 'new_payment.html', {'payment_form' : form})
             else:
-                # TODO: display errors
-                form = PaymentForm()
-                #return Response(status=status.HTTP_400_BAD_REQUEST)
+                return render(request, 'new_payment.html',
+                    {'error_msg': getServerErrorData()['error']})
+
         return render(request, 'new_payment.html', {'payment_form' : form})
 
 class GuiDeletePaymentView(APIView):
