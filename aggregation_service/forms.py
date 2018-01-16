@@ -1,5 +1,7 @@
 from django import forms
 from django.core.validators import RegexValidator, validate_comma_separated_integer_list
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.exceptions import ValidationError
 from datetime import datetime, date
 
 class CourseForm(forms.Form):
@@ -33,15 +35,15 @@ class CourseForm(forms.Form):
     def clean_start_date(self):
         start_date = self.cleaned_data['start_date']
         if start_date < date.today():
-            raise ValidationError(_('Invalid date - new course starts in past'))
+            raise ValidationError('Invalid date - new course starts in past')
         return start_date
 
-    def clean_end_date(self):
-        start_date = self.cleaned_data['start_date']
-        end_date = self.cleaned_data['end_date']
-        if end_date < start_date:
-            raise ValidationError(_('Invalid date - end date before start date'))
-        return end_date
+    #def clean_end_date(self):
+    #    start_date = self.cleaned_data['start_date']
+    #    end_date = self.cleaned_data['end_date']
+    #    if end_date < start_date:
+    #        raise ValidationError('Invalid date - end date before start date')
+    #    return end_date
 
 class StudentForm(forms.Form):
     username = forms.CharField(
@@ -86,30 +88,35 @@ class StudentForm(forms.Form):
             }))
     height = forms.IntegerField(
         required=False,
+        validators=[MaxValueValidator(200), MinValueValidator(140)],
         widget=forms.TextInput(
             attrs={
             'placeholder':'Enter height measurement'
             }))
     bust = forms.IntegerField(
         required=False,
+        validators=[MaxValueValidator(110), MinValueValidator(40)],
         widget=forms.TextInput(
             attrs={
             'placeholder':'Enter bust measurement'
             }))
     waist = forms.IntegerField(
         required=False,
+        validators=[MaxValueValidator(110), MinValueValidator(40)],
         widget=forms.TextInput(
             attrs={
             'placeholder':'Enter waist measurement'
             }))
     hips = forms.IntegerField(
         required=False,
+        validators=[MaxValueValidator(110), MinValueValidator(40)],
         widget=forms.TextInput(
             attrs={
             'placeholder':'Enter hips measurement'
             }))
     shoe = forms.IntegerField(
         required=False,
+        validators=[MaxValueValidator(45), MinValueValidator(30)],
         widget=forms.TextInput(
             attrs={
             'placeholder':'Enter shoe measurement'
@@ -136,7 +143,15 @@ class OrderForm(forms.Form):
             attrs={
             'placeholder':'User id'
             }))
+    amount = forms.IntegerField(
+        widget=forms.TextInput(
+            attrs={
+            'placeholder':'Amount for courses in order (in rubles)'
+            }))
+    is_paid = forms.BooleanField(
+        required=False)
     order_date = forms.DateTimeField(
+        required=False,
         widget=forms.DateTimeInput(
             attrs={
             'placeholder':'Set datetime of order or null for autoset'
