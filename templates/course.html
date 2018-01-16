@@ -13,7 +13,7 @@
   <div class="container">
 
     {% if error_msg %}
-      {{ error_msg }}
+      <p class="alert alert-danger">{{ error_msg }}</p>
 
     {% else %}
 
@@ -24,10 +24,10 @@
         <h4>{{ course.name }}</h4>
         <p><a href="{% url 'course-change' cid=course.id %}">Изменить данные о курсе</a></p>
         <p><a href="#" class="js-delete-course">Удалить этот курс</a></p>
-        <p class="courses-date">Дата старта: {{ course.start_date }}</p>
-        <p class="courses-date">Дата окончания: {{ course.end_date }}</p>
-        <p class="courses-price">Цена курса: {{ course.price }}р</p>
-        <p>{{ course.description }}</p>
+        <p>Дата старта: {{ course.start_date }}</p>
+        <p>Дата окончания: {{ course.end_date }}</p>
+        <p>Цена курса: {{ course.price }}р</p>
+        <p>Описание курса: <br> {{ course.description }}</p>
       </div>
     </div>
     <div class="clearfix"> </div>

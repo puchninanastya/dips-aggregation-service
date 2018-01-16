@@ -23,7 +23,8 @@
 			<div class="news-info">
 
 				{% if error_msg %}
-					{{ error_msg }}
+					<br>
+					<p class="alert alert-danger">{{ error_msg }}</p>
 
 				{% else %}
 	        {% for current_student in students %}

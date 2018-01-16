@@ -13,26 +13,38 @@
   <div class="container">
 
     {% if error_msg %}
-      {{ error_msg }}
+      <p class="alert alert-danger">{{ error_msg }}</p>
 
     {% else %}
 
-    <h1 class="hdng">Заказ на покупку курса модельной школы</h1>
+    <h1 class="hdng">Заказы учеников модельной школы</h1>
 
     <div class="about-text">
       <div class="col-md-12 about-text-right">
-        <h4>{{ order.id }}</h4>
+        <h4>Заказ номер {{ order.id }}</h4>
         <p><a href="{% url 'order-change' oid=order.id %}">Изменить данные о заказе</a></p>
 				<p><a href="#" class="js-delete-order">Удалить этот заказ</a></p>
-				<p>User: {{ order.user.id }} {{ order.user.first_name }} {{ order.user.last_name }}
-				<p>Дата: {{ order.order_date }}</p>
-				<p>Amount: {{ order.amount }}</p>
-				<p>Is paid: {{ order.is_paid }}</p>
-
-				{% for current_course in courses %}
-					{% include "course_block.html" with course=current_course %}
-				{% endfor %}
-
+				<p>Сделан пользователем:
+					{% if not order.user.id %}
+					(Невозможно получить информацию о пользователе с id {{ order.user }})
+					{% else %}
+					<a href="{% url 'student-detail' sid=order.user.id %}">
+						{{ order.user.first_name }} {{ order.user.last_name }}</a>
+					{% endif %}
+					<br>
+				</p>
+				<p>Дата заказа: {{ order.order_date }}</p>
+				<p>Сумма заказа: {{ order.amount }}</p>
+				<p>Заказ оплачен: {% if order.is_paid %}Оплачен{% else %}Не оплачен{% endif %}</p>
+				<p>Заказанные курсы: <br>
+					{% for current_course in order.courses %}
+							{% if current_course.course_id %}
+							(Невозможно получить информацию о курсе с id {{ current_course.course_id }})
+							{% else %}
+							<a href="{% url 'course-detail' cid=current_course.id %}">{{current_course.name }}</a>
+							{% endif %}<br>
+					{% endfor %}
+				</p>
       </div>
     </div>
     <div class="clearfix"> </div>

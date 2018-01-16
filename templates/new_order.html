@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %} {{ payment_operation }} {% endblock %}
+{% block title %} {{ order_operation }} {% endblock %}
 
 {% block pagecontent %}
 
@@ -11,17 +11,17 @@
 <!--course-form-->
 <div class="about">
   <div class="container">
-    <h1 class="hdng">Платежи заказов модельной школы</h1>
+    <h1 class="hdng">Заказы учеников модельной школы</h1>
 
     <div class="about-text">
       <div class="col-md-12 about-text-right">
-        <h4>{{ payment_operation }}</h4>
+        <h4>{{ order_operation }}</h4>
 
 				{% if error_msg %}
 					<p class="alert alert-danger">{{ error_msg }}</p>
 
 				{% else %}
-        	{% include "forms.html" with form=payment_form %}
+        	{% include "forms.html" with form=order_form %}
 
 				{% endif %}
       </div>

@@ -16,7 +16,8 @@
 		<p><a href="{% url 'order-new' %}">Добавить новый заказ </a></p>
 
 				{% if error_msg %}
-					{{ error_msg }}
+					<br>
+					<p class="alert alert-danger">{{ error_msg }}</p>
 
 				{% else %}
 	        {% for current_order in orders %}
