@@ -16,15 +16,12 @@ from .forms import CourseForm, StudentForm, OrderForm, PaymentForm
 from .help_functions import (fixResponsePaginationUrls, getObjectFromService,
     getResponseErrorsForForm, getUnavailableErrorData, getServerErrorData)
 
-""" Services settings """
-nameUserService = 'User service'
-urlUserService = 'http://127.0.0.1:8001/'
-nameCourseService = 'Course service'
-urlCourseService = 'http://127.0.0.1:8002/'
-nameOrderService = 'Order service'
-urlOrderService = 'http://127.0.0.1:8003/'
-nameBillingService = 'Billing service'
-urlBillingService = 'http://127.0.0.1:8004/'
+from .constants import (GATEWAY_APP_ID, GATEWAY_APP_SECRET)
+from .constants import (
+    nameUserService,    urlUserService,
+    nameCourseService,  urlCourseService,
+    nameOrderService,   urlOrderService,
+    nameBillingService, urlBillingService)
 
 '''
 Views for UI Templates

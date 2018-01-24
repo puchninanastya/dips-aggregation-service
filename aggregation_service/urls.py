@@ -39,6 +39,6 @@ urlpatterns = [
      url(r'^payments/(?P<pid>\w+)/', ui_views.GuiPaymentDetailView.as_view(), name='payment-detail'),
      url(r'^payments/$', ui_views.GuiPaymentListView.as_view(), name='payments-list'),
 
-     url(r'^/contacts/$', ui_views.contacts, name='contacts'),
+     url(r'^contacts/$', ui_views.contacts, name='contacts'),
      url(r'^$', ui_views.index, name='index'),
 ]

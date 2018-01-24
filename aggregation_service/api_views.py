@@ -10,19 +10,18 @@ from urllib.parse import urlparse, urlunparse
 from datetime import datetime
 import requests
 
+from .models import Token
 from .tasks import deleteUserOrders
 from .help_functions import (fixResponsePaginationUrls, getObjectFromService,
-    getResponseErrorsForForm, getUnavailableErrorData, getServerErrorData)
+    getResponseErrorsForForm, getUnavailableErrorData, getServerErrorData,
+    getAppAuthTokenFromService)
 
-""" Services settings """
-nameUserService = 'User service'
-urlUserService = 'http://127.0.0.1:8001/'
-nameCourseService = 'Course service'
-urlCourseService = 'http://127.0.0.1:8002/'
-nameOrderService = 'Order service'
-urlOrderService = 'http://127.0.0.1:8003/'
-nameBillingService = 'Billing service'
-urlBillingService = 'http://127.0.0.1:8004/'
+from .constants import (GATEWAY_APP_ID, GATEWAY_APP_SECRET)
+from .constants import (
+    nameUserService,    urlUserService,
+    nameCourseService,  urlCourseService,
+    nameOrderService,   urlOrderService,
+    nameBillingService, urlBillingService)
 
 '''
 Views for RESTful API
@@ -111,7 +110,22 @@ class UserDetail(APIView):
 class CourseList(APIView):
     def get(self, request):
         try:
-            courseServiceResponse = requests.get(urlCourseService+'courses/', params = request.query_params)
+            # first try with current app token
+            appToken = Token.objects.get(app_id=GATEWAY_APP_ID)
+            header = { 'Authorization': 'Bearer ' + appToken.token }
+            courseServiceResponse = requests.get(urlCourseService+'courses/',
+                params = request.query_params, headers=header)
+
+            # get token and second try
+            if courseServiceResponse.status_code == 401:
+                newAppToken = getAppAuthTokenFromService(urlCourseService, GATEWAY_APP_ID, appToken.app_secret)
+                if newAppToken:
+                    appToken.token = newAppToken
+                    appToken.save()
+                    header = { 'Authorization': 'Bearer ' + newAppToken }
+                    courseServiceResponse = requests.get(urlCourseService+'courses/',
+                        params = request.query_params, headers=header)
+
             if courseServiceResponse.status_code == requests.codes.ok:
                 responseData = fixResponsePaginationUrls(request, courseServiceResponse)
                 return Response(responseData)

@@ -3,6 +3,8 @@ from rest_framework.response import Response
 
 from urllib.parse import urlparse, urlunparse
 
+import requests
+
 '''
 Helper functions
 '''
@@ -45,3 +47,15 @@ def getUnavailableErrorData(serviceName):
 
 def getServerErrorData():
     return {'error' : 'Unknown server error.'}
+
+def getAppAuthTokenFromService(url, appId, appSecret):
+    try:
+        appInfo = {'clientId': appId, 'clientSecret': appSecret}
+        response = requests.get(url + 'create-auth-token/', params=appInfo)
+        if response.status_code == requests.codes.ok:
+            token = response.json().get('token', None)
+            if token:
+                return token
+        return None
+    except:
+        return None
