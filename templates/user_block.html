@@ -3,8 +3,8 @@
     <li><a href="#">ПРОФИЛЬ</a></li>
     <li class="login" >
       <div id="loginContainer"><a href="#" id="loginButton"><span>ВХОД</span></a>
-          <div id="loginBox">
-              <form id="loginForm">
+        <div id="loginBox">
+          <form id="loginForm" method="POST" enctype="multipart/form-data" action="/login">
             <fieldset id="body">
               <fieldset>
                 <label for="email">Электронный адрес</label>
@@ -14,6 +14,7 @@
                 <label for="password">Пароль</label>
                 <input type="password" name="password" id="password">
               </fieldset>
+              {% csrf_token %}
               <input type="submit" id="login" value="Войти">
             </fieldset>
           </form>
