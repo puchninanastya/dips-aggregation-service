@@ -16,7 +16,7 @@ from .forms import CourseForm, StudentForm, OrderForm, PaymentForm
 from .help_functions import (fixResponsePaginationUrls, getObjectFromService,
     getResponseErrorsForForm, getUnavailableErrorData, getServerErrorData)
 
-from .constants import (GATEWAY_APP_ID, GATEWAY_APP_SECRET)
+from .constants import GATEWAY_APP_ID
 from .constants import (
     nameUserService,    urlUserService,
     nameCourseService,  urlCourseService,
